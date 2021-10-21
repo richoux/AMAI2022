@@ -82,11 +82,22 @@
 \newcommand{\efsp}{\textsc{EFSP}\xspace}
 \newcommand{\efop}{\textsc{EFOP}\xspace}
 \newcommand{\cfn}{\textsc{CFN}\xspace}
-\newcommand{\wcsp}{\textsc{WCSP}\xspace}
 \newcommand{\cbls}{\textsc{CBLS}\xspace}
 \newcommand{\ghost}{\textsc{GHOST}\xspace}
 \newcommand{\cppn}{\textsc{CPPN}\xspace}
 \newcommand{\icn}{\textsc{ICN}\xspace}
+
+\newcommand{\cproblem}[3]%
+{\begin{trivlist}
+  \item[]%
+    \textbf{Problem:} \textsc{#1}\\
+    \textit{Input:} #2\\
+    \textit{Question:} #3
+  \end{trivlist}%
+}
+
+\newcommand{\flo}{\textcolor{blue}{\bf Flo}\xspace}
+\newcommand{\jf}{\textcolor{red}{\bf JF}\xspace}
 
 \begin{document}
 
@@ -116,9 +127,32 @@
 
 %\affil[3]{\orgdiv{Department}, \orgname{Organization}, \orgaddress{\street{Street}, \city{City}, \postcode{610101}, \state{State}, \country{Country}}}
 
-\abstract{\flushleft{Elle est où la poulette ?}}
+\abstract{   In  Constraint   Programming,  constraints   are  usually
+  represented  as predicates  allowing or  forbidding combinations  of
+  values.    However,   some   algorithms    can   exploit   a   finer
+  representation: error functions.  By  associating a function to each
+  constraint type to evaluate the quality of an assignment, it extends
+  the    expressiveness    of    regular    Constraint    Satisfaction
+  Problem/Constrained  Optimization Problem  formalisms.  Their  usage
+  comes with a  price though: it makes  problem modeling significantly
+  harder, since users  must provide a set of error  functions that are
+  not  always  easy   to  define.   Here,  we  propose   a  method  to
+  automatically learn an error function corresponding to a constraint,
+  given  its predicate  version only.   This is,  to the  best of  our
+  knowledge, the first attempt  to automatically learn error functions
+  for hard constraints.  Our method aims to learn error functions in a
+  supervised fashion,  trying to reproduce  either the Hamming  or the
+  Manhattan distance, by  using a variant of neural  networks we named
+  Interpretable Compositional Networks. This  variant allows us to get
+  interpretable  results,   unlike  with  regular   artificial  neural
+  networks.  We run experiments on 7 different constraints to show its
+  versatility.  Experiments  show that our system  can learn functions
+  that scale to  high dimensions, and can learn  fairly good functions
+  over incomplete  spaces. We also  show that learned  error functions
+  can  be  used  efficiently  to represent  constraints  in  different
+  classic problems.  }
 
-\keywords{Combinatorial optimization, Constraint Programming, Problem modeling, Error function, Interpretable learning}
+\keywords{Combinatorial Satisfaction, Combinatorial Optimization, Constraint Programming, Problem Modeling, Error Function, Interpretable Learning}
 
 %%\pacs[JEL Classification]{D8, H51}
 
@@ -126,24 +160,140 @@
 
 \maketitle
 
-\section{Introduction}\label{sec1}
+\section{TODO}
 
 Fusionner les papiers :
 \begin{itemize}
 \item JAIR 2020
 \item arXiv 2021 v1
-\item DSO
+\item arXiv 2021 v2
 \end{itemize}
-sachant que arXiv 2021 v2 est la version DSO.
+sachant que arXiv 2021 v1 est la version longue de GECCO et arXiv 2021
+v2 est la version DSO.
 
 \noindent%
 À inclure dans ce papier :
 \begin{itemize}
 \item les échecs (JAIR 2020)
-  \item parler de biased symbolic regression et genetic programming
+\item parler de biased symbolic regression et genetic programming
 \end{itemize}
 
-Freuder for the win~\cite{Freuder1997}
+\section{Introduction}\label{sec1}
+
+Twenty   years  separate   Freuder's  papers   \cite{Freuder1997}  and
+\cite{Freuder2018},  both   about  the  grand   challenges  Constraint
+Programming  (\cp)  must  tackle  \emph{``to  be  pioneer  of  a  new
+  usability    science     and    to    go    on     to    engineering
+  usability''}~\cite{Freuder2007}.
+
+To  respond  to   the  lack  of  a  ``Model  and   Run''  approach  in
+\cp~\cite{Puget2004,Wallace2003},   several    languages   have   been
+developed  since  the  late 2000's,  such  as  ESSENCE~\cite{essence},
+XCSP~\cite{XCSP-paper}  or  MiniZinc~\cite{minizinc}.   However,  they
+require users to have deep expertise on global constraints and to know
+how well  these constraints, and  their associated mechanisms  such as
+propagators,  are suiting  the  solver.   We are  still  far from  the
+original Holy Grail  of \cp: \emph{``the user states  the problem, the
+  computer solves it''}~\cite{Freuder1997}.%% Some progress has been
+%% made though, like in automatic problem modeling~\cite{Freuder2018}:
+%% one can cite, among other  works, constraint detection described in
+%% a natural language~\cite{Kiziltan2016},  automatic constraint model
+%% production    from    an    abstract    constraint    specification
+%% language~\cite{AMJFH2011}, and  acquiring constraint  networks from
+%% examples classified by the user~\cite{Bessiere2017}.
+
+This paper makes a contribution  in automatic \cp problem modeling. We
+focus  on Error  Function  Satisfaction and  Optimization Problems  we
+defined  in  the  next   section.   Compare  to  classical  Constraint
+Satisfaction  and Constrained  Optimization Problems,  they rely  on a
+finer structure about  the problem: the cost  functions network, which
+is an  ordered structure over  invalid assignments (in our  case) that
+some  solvers,  such as  constraint-based  local  search solvers,  can
+exploit efficiently to improve the search.
+
+In  this  paper,  we  propose   a  method  to  learn  error  functions
+automatically; a direction that, to the best of our knowledge, had not
+been explored in Constraint Programming.
+
+\section{Error Function Satisfaction and Optimization Problems}\label{sec:efsp}
+
+Constraint  Satisfaction Problem  (\csp) and  Constrained Optimization
+Problem (\cop) are constraint-based  problems defined upon a classical
+hard-constraint network,  where constraints can be  seen as predicates
+allowing or forbidding some combinations of variable assignments.
+
+Likewise,  Error  Function  Satisfaction  Problem  (\efsp)  and  Error
+Function  Optimization Problem  (\efop) are  constraint-based problems
+defined upon  a specific hard-constraint network named  cost function
+network~\cite{GuidedTour}        or        semi-ring        constraint
+network~\cite{handbookCP}.   Both  networks  are  equivalent  for  the
+purpose of  this paper: cost  function networks exactly  correspond to
+semi-ring   constraint   networks   with  a   totally   ordered   cost
+structure~\cite{GuidedTour}.
+
+Constraints    are     then    represented    by     cost    functions
+\(f: D_1  \times D_2 \times  \ldots \times D_n \rightarrow  E\), where
+\(D_i\) is  the domain of  \(i\)-th variable in the  constraint scope,
+\(n\) the number of variables (\ie,  the size of this scope) and \(E\)
+the set of possible costs.
+
+A cost function network is a quadruplet \(\langle V, D, F, S \rangle\)
+where \(V\) is a  set of variables, \(D\) the set  of domains for each
+variable, \ie,  the sets of values  each variable can take,  \(F\) the
+set of cost functions and \(S\)  a cost structure. A cost structure is
+also a quadruplet \(S = \langle  E, \oplus, \bot, \top \rangle\) where
+\(E\)  is the  totally ordered  set  of possible  costs, \(\oplus\)  a
+commutative,  associative,  and   monotone  aggregation  operator  and
+\(\bot\)  and  \(\top\) are  the  neutral  and absorbing  elements  of
+\(\oplus\), respectively.
+
+In  Constraint Programming,  cost  functions are  often associated  to
+soft-constraints: they can be interpreted as preferences over valid or
+acceptable assignments.  However, this is not necessarily the case: it
+actually depends on  the cost structure.  For  instance, the classical
+cost structure
+\[S_{t/f} = \langle \{true, false\}, \wedge, true, false\rangle\] make
+the  cost  function  network  equivalent  to  a  classical  constraint
+network, so dealing with hard-constraints.
+
+Here,  we  consider  particular  cost functions  that  also  represent
+hard-constraints  only, by  considering  the  additive cost  structure
+\(S_+ = \langle \mathbb{R}, +,  0, \infty\rangle\).  The additive cost
+structure produces  useful cost  function networks  capturing problems
+such as Maximum Probability Explanation (MPE) in Bayesian networks and
+Maximum    A   Posteriori    (MAP)   problems    in   Markov    random
+fields~\cite{Hurley16}.
+
+We  name {\bf  error  function}  a cost  function  defined  in a  cost
+function   network   with   the   additive   cost   structure~\(S_+\).
+Intuitively,  error  functions  are  preferences  over  \emph{invalid}
+assignments.   Let  \(f_c\)  be   an  error  function  representing  a
+constraint \(c\)  and \(\vec x_c\)  an assignment of variables  in the
+scope of \(c\).  Then \(f_c(\vec x_c) = 0\) iff \(\vec x_c\) satisfies
+the  constraint  \(c\).   For all  invalid  assignments~\(\vec  i_c\),
+\(f_c(\vec i_c) > 0\) such that  the closer \(f_c(\vec i_c)\) is to 0,
+the closer~\(\vec i_c\) is to satisfy \(c\).
+
+The goal  of this paper  is not to study  the advantages of  such cost
+function   networks   over    regular   constraint   networks.    Some
+Constraint-Based Local Search methods  such as Adaptive Search exploit
+this  structure  efficiently  and show  state-of-the-art  experimental
+results,     both     in     sequential~\cite{AS}     and     parallel
+solving~\cite{caniou2015constraints}.  Such  question would  deserve a
+deep investigation which  is out of the scope of  this paper. However,
+we can  give a short  illustration of  the advantage of  cost function
+networks over regular constraint networks. Figure~\ref{fig:landscapes}
+shows  the search  landscapes of  the same  constraint network  from a
+regular constraint  network (Figure~\ref{fig:csp_landscape})  and cost
+function network (Figure~\ref{fig:efsp_landscape})  point of view. The
+network  is  composed  of   the  constraints  AllDifferent\((x,  y)\),
+\(x   \leq   y\)   and   \(x+2y=6\).    Error   functions   used   for
+Figure~\ref{fig:efsp_landscape} have been learned  with our system. We
+can see that  the \csp landscape is mostly composed  of large plateaus
+with an error  measure (the number of violated  constraints) between 0
+and 2.   On the other  hand, the \efsp  landscape is more  convex with
+slopes  toward the  solution, with  a broader  scope of  error values,
+between 0 and 6, allowing richer comparisons of variable assignments.
 
 \begin{figure}[h]
 	\centering
@@ -161,6 +311,61 @@ Freuder for the win~\cite{Freuder1997}
   \caption{Search landscapes of a small constraint network.}
   \label{fig:landscapes}
 \end{figure}
+
+The  term  ``error   function''  has  been  used   in  the  Constraint
+Programming literature in the same sense as in this paper.  Borning et
+al.~\cite{Borning94} are the  first, to the best of  our knowledge, to
+use this  term. It also  appears in the constraint-based  local search
+literature,  like in  Codognet et  al.~\cite{AS} describing  the local
+search algorithm  Adaptive Search.   We can  also find  the equivalent
+term   ``penalty   function''~\cite{Galinier04}   for   local   search
+algorithms in  Constraint Programming.  However, penalty  function can
+also refers to functions representing soft-constraints in Mathematical
+Programming~\cite{MezuraMontes2011}.   Therefore, to  avoid confusions
+with  cost functions  or  penalty functions  for soft-constraints,  we
+opted for the name ``error function''.
+
+Let \(\vec  x\) be a variable  assignment, and denote by  \(\vec x_c\)
+the  projection  of \(\vec  x\)  over  variables  in  the scope  of  a
+constraint \(c\).  We can now define the \efsp and \efop problems.
+
+\cproblem%
+{Error Function Satisfaction Problem}%
+{ A cost function network \(\langle V, D, F, S_+ \rangle\).}%
+{ Does   a   variable   assignment   \(\vec   x\)   exist   such   that
+  \(\forall f_c \in F,\ f_c(\vec x_c)=0\) holds?}%
+
+\cproblem%
+{Error Function Optimization Problem}%
+{ A  cost function  network \(\langle  V, D,  F, S_+  \rangle\) and  an
+  objective function \(o\).}%
+{ Find a  variable assignment \(\vec  x\) maximizing or  minimizing the
+  value        of        \(o(\vec         x)\)        such        that
+  \(\forall f_c \in F,\ f_c(\vec x_c)=0\) holds.}%
+
+Thanks to their constraint structure,  problems modeled by an \efsp or
+an \efop can be solved by constraint-based local search solvers faster
+than if  they were  modeled by  a \csp or  a \cop.   Or with  the same
+computation  budget,  a  solver  could solve  larger  \efsp  or  \efop
+problems. However,  we do  not obtain  this gain for  free: this  is a
+trade with modeling simplicity. Indeed, it  is not always easy to find
+good  error  functions to  describe  constraints.%    For instance,  the
+% function \(f(x,y) = |x-y|\) seems intuitive to describe the constraint
+% \(x=y\), but  is actually a  poor choice since all  invalid assignment
+% requires to change one variable only.  This would not fit Local Search
+% algorithms well.   Moreover, it is not  trivial how to define  it over
+% higher dimensions (for instance, for the constraint \(x=y=z\)).
+
+This paper focuses on this  ``easy-to-use'' problem and proposes a way
+to  automatically  learn error  functions.   Users  provide the  usual
+constraint  network  \(\langle V,  D,  C  \rangle\), and  our  systems
+computes      the      equivalent     cost      function      networks
+\(\langle V, D, F, S_+  \rangle\). Learned functions composing the set
+\(F\) are independent of the number of variables in constraints scope,
+and are expressed in an  interpretable way: users can understand these
+functions and  easily modify them at  will.  This way, users  can have
+the power of \efsp and \efop with the same modeling effort as for \csp
+and \cop.
 
 \section*{Declarations}
 
