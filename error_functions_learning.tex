@@ -415,6 +415,66 @@ can  be  modified  at  will  to fit  needs  related  to  their  domain
 expertise.   \emph{Constraint Implementation  Learning}  is what  best
 describes this research topic.
 
+\section{Method design}\label{sec:method_design}
+
+The main result of this paper  is to propose a method to automatically
+learn an error function representing  a constraint, to make easier the
+modeling of \efsp/\efop.   We are tackling a  regression problem since
+the  goal is  to find  a function  that outputs  a target  value. More
+specifically,  looking for  the  model of  a function  in  a space  of
+mathematical representation  is a  symbolic regression  problem.  Such
+problems  are often  handled by  genetic programming  methods, but  we
+explain in Section~\ref{subsec:main_result} why  we do not use genetic
+programming to learn error functions in this work.
+
+In this paper, we denote by \textbf{method} the methodology we propose
+to learn error function, and  by \textbf{system} the implementation of
+our method.  Before diving into the description of our method, we need
+to introduce some essential notions.
+
+\subsection{Definitions}\label{subsec:definitions}
+
+We propose a method to automatically  learn an error function from the
+\emph{concept}  of   a  constraint.   As  described   in  Bessiere  et
+al.~\cite{Bessiere2017},  the \textbf{concept}  of a  constraint is  a
+Boolean  function  that,  given  an  assignment  \(\vec  x\),  outputs
+\emph{true} if  \(\vec x\) satisfies the  constraint, and \emph{false}
+otherwise. Concepts  are the  predicate representation  of constraints
+referred at the beginning of Section~\ref{sec:efsp}.
+
+Our method learns  error functions in a  supervised fashion, searching
+for  a  function  computing  either the  \emph{Hamming  cost}  of  the
+\emph{Manhattan cost} of each assignment. The \textbf{Hamming cost} of
+an  assignment  \(\vec x\)  is  the  minimum  number of  variables  in
+\(\vec x\)  to reassign  to get a  \textbf{solution}, \ie,  a variable
+assignment satisfying  the considered constraint.  In  other words, it
+is the Hamming  distance from \(\vec x\) to its  closest solution.  If
+\(\vec  x\)  is  a  solution,  then   its  Hamming  cost  is  0.   The
+\textbf{Manhattan cost}  of an  assignment \(\vec  x\) is  the minimum
+number of  value incrementations or  decrementations in \(\vec  x\) to
+perform to get  a solution.  It corresponds to  the Manhattan distance
+from \(\vec x\)  to its closest solution. As for  the Hamming cost, if
+\(\vec x\) is a solution, its Manhattan cost is 0.
+
+Given the  number of variables of  a constraint and their  domain, the
+\textbf{constraint   assignment  space}   is   the   set  of   couples
+\((\vec  x, b)\)  where  \(\vec x\)  is an  assignment  and \(b\)  the
+Boolean output of the concept  applied on \(\vec x\).  Such constraint
+assignment spaces  can be  generated from  concepts. These  spaces are
+said to be \textbf{complete} if and  only if they contain all possible
+assignments, \ie, all combinations of  possible values of variables in
+the scope  of the constraint,  given their domain.   Otherwise, spaces
+are said to be \textbf{incomplete}.
+
+In  this work,  we consider  an error  function to  be a  (non-linear)
+combination of elementary operations.  Complete spaces are intuitively
+good training sets  since it is easy to compute  the exact Hamming and
+Manhattan costs of their elements.   We also consider assignments from
+incomplete spaces  where their Hamming  and Manhattan costs  have been
+approximated  regarding  a  subset  of  solutions  in  the  constraint
+assignment space, in case their exact formulas are unknown.
+
+
 \section*{Declarations}
 
 Some journals require declarations to be submitted in a standardised format. Please check the Instructions for Authors of the journal to which you are submitting to see if you need to complete this section. If yes, your manuscript must contain the following sections under the heading `Declarations':
