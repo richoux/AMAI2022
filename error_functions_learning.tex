@@ -178,7 +178,7 @@ v2 est la version DSO.
 \item parler de biased symbolic regression et genetic programming
 \end{itemize}
 
-\section{Introduction}\label{sec1}
+\section{Introduction}\label{sec:introduction}
 
 Twenty   years  separate   Freuder's  papers   \cite{Freuder1997}  and
 \cite{Freuder2018},  both   about  the  grand   challenges  Constraint
@@ -366,6 +366,54 @@ and are expressed in an  interpretable way: users can understand these
 functions and  easily modify them at  will.  This way, users  can have
 the power of \efsp and \efop with the same modeling effort as for \csp
 and \cop.
+
+\section{Related works}\label{sec:related_works}
+
+This  work  belongs to  one  of  the  three directions  identified  by
+Freuder~\cite{Freuder2007}:   \emph{Automation},   \ie,   ``automating
+efficient and  effective modeling and  solving''.  To the best  of our
+knowledge, few efforts have been done on the modeling side.
+
+Another  of  these  three  directions which  is  slightly  related  is
+\emph{Acquisition} described  by Freuder to be  ``acquiring a complete
+and correct representation of  real problems''.  Remarkable efforts on
+this topic  have been done  by Bessiere's research team,  for instance
+with  constraints learning  by  induction from  positive and  negative
+examples~\cite{Bessiere05},   with   interactive  queries   asked   to
+users~\cite{Bessiere07},  and with  constraint  network learning  also
+through with interactive queries~\cite{Bessiere13}.
+
+Model Seeker~\cite{Beldiceanu12}  is a passive learning  system taking
+positive  examples  only, which  are  certainly  easier for  users  to
+provide.   It transforms  examples  into data  adapted  to the  Global
+Constraint   Catalog~\cite{catalog},   then  generate   and   simplify
+candidates by eliminating dominated ones. Model Seeker is particularly
+efficient  to find  a good  inner structure  of the  target constraint
+network.
+
+Teso~\cite{Teso19}  gives a  good survey  on Constraint  Learning with
+this  interesting remark:  ``A major  bottleneck of  [constraint-based
+problem  modeling] is  that obtaining  a formal  constraint theory  is
+non-obvious: designing an appropriate, working constraint satisfaction
+or optimization  problem requires both domain  and modeling expertise.
+For this reason, in  many cases a modeling expert is  hired and has to
+interact with domain expert to  acquire informal requirements and turn
+them into  a valid constraint  theory.  This process can  be expensive
+and time-consuming.''
+
+We can  consider that Constraint Acquisition,  or Constraint Learning,
+focuses on modeling expertise and puts domain expertise on background:
+users  would not  be able  to understand  and modify  a learned  model
+without the  help of a modeling  expert. The goal of  these systems is
+mainly to simplify the interaction between the domain and the modeling
+experts.
+
+Our  work  is  taking  the  opposite direction:  we  focus  on  domain
+expertise and put modeling expertise  on background.  With our system,
+users always have the  control over constraints' representation, which
+can  be  modified  at  will  to fit  needs  related  to  their  domain
+expertise.   \emph{Constraint Implementation  Learning}  is what  best
+describes this research topic.
 
 \section*{Declarations}
 
