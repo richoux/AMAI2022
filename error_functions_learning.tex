@@ -20,8 +20,8 @@
 %% to compile with pdflatex/xelatex use pdflatex option %%
 %%======================================================%%
 
-\documentclass[pdflatex,iicol,sn-mathphys]{sn-jnl}
-%\documentclass[pdflatex,iicol,referee,sn-mathphys]{sn-jnl}
+\documentclass[pdflatex,sn-mathphys]{sn-jnl}
+%\documentclass[pdflatex,referee,sn-mathphys]{sn-jnl}
 
 %% \documentclass[pdflatex,sn-basic]{sn-jnl}% Basic Springer Nature Reference Style/Chemistry Reference Style
 
@@ -37,10 +37,9 @@
 
 %%%% Standard Packages
 %% <additional latex packages if required can be included here>
-\usepackage{graphicx}
 \usepackage{subcaption}
 \usepackage{xspace}
-%%%%
+%%%% 
 
 %%%%%=============================================================================%%%%
 %%%%  Remarks: This template is provided to aid authors with the preparation
@@ -96,16 +95,16 @@
   \end{trivlist}%
 }
 
-\newcommand{\flo}{\textcolor{blue}{\bf Flo}\xspace}
-\newcommand{\jf}{\textcolor{red}{\bf JF}\xspace}
+\newcommand{\flo}[1]{\textcolor{blue}{\bf Flo: \xspace #1}}
+\newcommand{\jf}[1]{\textcolor{red}{\bf JF: \xspace #1}}
 
 \begin{document}
 
 % \title[Interpretable  Error Functions  Learning for  CP]{Interpretable
 %   Error Functions Learning for Constraint Programming}
 
-%\title[Automatic Error Function Learning with ICN]{Automatic Error Function Learning with Interpretable Compositional Networks}
-\title[ ]{Automatic Error Function Learning with Interpretable Compositional Networks}
+\title[Automatic Error Function Learning with ICN]{Automatic Error Function Learning with Interpretable Compositional Networks}
+%\title[ ]{Automatic Error Function Learning with Interpretable Compositional Networks}
 
 %%=============================================================%%
 %% Prefix	-> \pfx{Dr}
@@ -474,6 +473,198 @@ incomplete spaces  where their Hamming  and Manhattan costs  have been
 approximated  regarding  a  subset  of  solutions  in  the  constraint
 assignment space, in case their exact formulas are unknown.
 
+\subsection{Main result}\label{subsec:main_result}
+
+Our  method learns  error  functions as  a  non-linear combination  of
+elementary   operations    and   lies    on   a   model    we   called
+\textbf{Interpretable  Compositional Network}  (\icn).  An  \icn is  a
+directed acyclic graph  composed of $k$ independent  sets organised in
+such  a  way that  vertices  of  an  independent set  are  exclusively
+connected  to  all  vertices  of  a  unique  independent  set  in  the
+graph. Thus, if we abstract each  independent set by a vertex, then we
+obtain a directed linear graph.
+
+\(\icn\)s are  networks in the  graph theory  way, \ie, a  graph where
+vertices or arcs  have attributes.  In an \icn,  vertices are actually
+elementary operations,  and arcs  represent the  possible combinations
+between these elementary operations.
+
+In its  shape, an \icn looks  like a neural network:  the hierarchical
+organisation  between  independent  sets exactly  corresponds  to  the
+hierarchical structure of  layers of neurons. Due  to this similarity,
+we call  \emph{layers} the independent  sets within an  \icn. However,
+the similarity  with neural networks  stops here: the  main difference
+between \(\icn\)s and neural networks  it that there are no activation
+functions  within  \(\icn\)s (the  elementary  operation  of a  vertex
+cannot  be considered  to be  an activation  function). A  second main
+difference is  that \(\icn\)s do  not have weights on  arcs connecting
+two vertices.   We first introduced \(\icn\)s  in a poster paper  as a
+variant of neural  networks~\cite{richoux2021gecco}.  Although \icn is
+deeply inspired from a variant of  neural networks, the correct way to
+interpret our  model is  to see  it as  a particular  directed acyclic
+graph.
+
+In this paper, our \(\icn\) model  is composed of four layers, each of
+them having a specific purpose and  composed of vertices with a unique
+operation for each. Learning an error function boils down to selecting
+which vertices  of the  network would  be part  of the  composition of
+elementary operations.
+
+Here is our method workflow in 4 points:
+\begin{enumerate}
+\item     Users    provide     a     regular    constraint     network
+  \(\langle  V, D,  C  \rangle\)  where \(C\)  is  a  set of  concepts
+  representing constraints.
+\item For  each constraint concept  \(c\), we generate its  \icn input
+  space \(X\),  which is  either a  complete or  incomplete constraint
+  assignment space.  Those input spaces are our training sets.  If the
+  space  is complete,  then the  Hamming and  Manhattan costs  of each
+  assignment  can  be pre-computed  before  learning  our \icn  model.
+  Otherwise,  the  incomplete  space  is composed  of  randomly  drawn
+  assignments and only an approximation of their Hamming and Manhattan
+  costs can be pre-computed.
+\item We learn the composition of elementary operations modeled by our
+  \icn in a supervised fashion, with the following loss function:
+  \begin{equation}\label{eq:loss}
+    loss = Min\left(Hamming_{diff}, Manhattan_{diff}\right) + Regularization
+  \end{equation}
+  with 
+  \begin{align}
+    Hamming_{diff} &= \sum_{\vec x \in X} \mid ICN(\vec x) -
+                       Hamming(\vec x)\mid \nonumber \\
+    Manhattan_{diff} &= \sum_{\vec x \in X} \mid ICN(\vec x) -
+                         Manhattan(\vec x)\mid \nonumber \\
+    Regularization &= 0.9  \times  \frac{\text{Number  of  selected  vertices}}{\text{Total number of vertices}}
+  \end{align}
+  where \(X\) is the constraint assignment space, \icn(\(\vec x\)) the
+  output  of the  \icn model  giving  \(\vec x  \in X\)  as an  input,
+  Hamming(\(\vec  x\))  and  Manhattan(\(\vec  x\))  respectively  the
+  pre-computed  Hamming  and  Manhattan  costs  of  \(\vec  x\)  (only
+  approximated  if \(X\)  is  incomplete), and  a regularization  term
+  between  0 and  0.9  to  favor short  \(\icn\)s,  \ie,  with as  few
+  elementary operations as possible.
+\item We have hold-out test sets of assignments from larger dimensions
+  to evaluate the quality of our learned error functions.
+\end{enumerate}
+
+% Notice we also have a hold-out validation set to fix the values of our
+% hyperparameters, as described in Section~\ref{sec:ga}.
+
+% Notice we  do not have  any validation sets  since we use  the default
+% value of the parameters.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{./figs/model_nn}
+  \caption{Our 4-layer network. Layers with blue vertices have mutually exclusive operations.}
+  \label{fig:model}
+\end{figure}
+
+Figure~\ref{fig:model}   is   a   schematic  representation   of   our
+network. It  takes as input an  assignment of \(n\) variables,  \ie, a
+vector    of    \(n\)    integers.    The    first    layer,    called
+\textbf{transformation  layer},  is   composed  of  18  transformation
+operations, each of  them applied element-wise on each  element of the
+input vector.   This element-wise computation property  is what allows
+our model to be able to compute  the error function of a constraint of
+an arbitrary size,  \ie, with an arbitrary number of  variables in the
+constraint  scope.  This  is  a very  powerful  feature  that  enables
+learning  error functions  over a  small constraint  assignment spaces
+that scale to larger spaces.
+
+Such transformation  operations are  for instance the  maximum between
+the  \(i\)-th and  \(i+1\)-th elements  of  the input  vector, or  the
+number of  \(j\)-th elements of  the vector smaller than  the \(i\)-th
+element such  that \(j >  i\) holds.  This  layer is composed  of both
+linear and non-linear  operations.  If an operation  is selected (\ie,
+it has an outgoing  weight equals to 1), it outputs  a vector of \(n\)
+integers.
+
+\begin{example}
+  Consider one of our  18 transformation operations: ``\emph{Number of
+    $x_j$  such that  \(j <  i\)  and $x_i=x_j$},''  with \(x_i\)  and
+  \(x_j\)  respectively  the  \(i\)-th   and  \(j\)-th  value  of  the
+  assignment \(\vec x\).  Giving the assignment \((3,1,3,4,3,1,2)\) as
+  input,   this   transformation    operation   outputs   the   vector
+  \((0,0,1,0,2,1,0)\).
+\end{example}
+
+If \(k\) transformation  operations are selected, then  the next layer
+gets \(k\)  vectors of  \(n\) integers  as input.   This layer  is the
+\textbf{arithmetic layer}.  Its  goal is to apply  a simple arithmetic
+operation in a  component-wise fashion on all \(i\)-th  element of our
+\(k\)  vectors  to get  one  vector  of  \(n\)  integers at  the  end,
+combining  previous  transformations into  a  unique  vector. We  have
+considered  only  2  arithmetic   operations:  the  addition  and  the
+multiplication.
+
+\begin{example}
+  Consider the addition as the arithmetic operation, and as inputs the
+  two  vectors  \((0,0,1,0,2,1,0)\)   and  \((2,0,1,0,2,0,0)\).  Then  the
+  arithmetic layer outputs the vector \((2,0,2,0,4,1,0)\).
+\end{example}
+
+The output of the arithmetic layer is given to the \textbf{aggregation
+  layer}. This layer crunches the  whole vector into a unique integer.
+At  the moment,  the aggregation  layer is  composed of  2 operations:
+\emph{Sum} computing the sum of input values and \emph{\(Count_{>0}\)}
+counting the number of input values strictly greater than 0.
+
+\begin{example}
+  Consider  the aggregation  operation \emph{\(Count_{>0}\)}  applied on
+  \((2,0,2,0,4,1,0)\). Then, the aggregation  layer outputs \(4\), since 4
+  values in the input are strictly greater than 0.
+\end{example}
+
+Finally, the computed scalar  is transmitted to the \textbf{comparison
+  layer}  with 9  operations.  Examples  of these  operations are  the
+identity,  or  the   absolute  value  of  the  input   minus  a  given
+parameter. This  layer compares its  input with an  external parameter
+value, or the number of variables  of the problem, or the domain size,
+among others.
+
+\begin{example}
+  Consider             the            comparison             operation
+  \emph{\(Max(0\mathrel{,}\  input -  parameter)\)}.   Assume that  we
+  have the parameter \(p=1\) and  \(4\) as input. The comparison layer
+  outputs \(3\).
+\end{example}
+
+All elementary operations  in our model are generic: we  do not choose
+them to fit one or several particular constraints.
+
+\flo{Donner la liste des 18  transformation et 9 comparison opérations
+  élémentaires.}
+
+Although  an in-depth  study of  the elementary  operations properties
+would be interesting, this is out of the scope of this paper: its goal
+is to show  that learning interpretable error functions  via a generic
+\icn is possible. There is no reason  to reduce \icn to its current 31
+elementary operations  or even a 4-layer  architecture.  Such elements
+can be changed by users to best fit their needs.
+
+To  have  simple   models  of  error  functions,   operations  of  the
+arithmetic, the  aggregation, and  the comparison layers  are mutually
+exclusive, meaning that  precisely one operation is  selected for each
+of  these layers.   However, many  operations from  the transformation
+layer can be selected to compose the error function. This allows us to
+have  a very  comprehensible combination  of elementary  operations to
+model  an error  function, making  it readable  and intelligible  by a
+human being.  For instance, the  most frequenly learned error function
+is
+\(Count_{>0}\big(\mid\{j\    \mid\    x[j]=x[i]     \text{    and    }
+j>i\}\mid\big)\)            for           AllDifferent,            and
+\(Euclidian_p\big(\sum^{n}_{i=1}  x[i]\big)\)   for  LinearSum  \flo{à
+  changer, c'est plus celle-là}, \ie, the
+Euclidian  division of  \(\big(\sum^{n}_{i=1} x[i]  - p\big)\)  by the
+maximal domain size,  with a parameter \(p\) equals to  the right hand
+side constant of the linear equation. Thus, once the model of an error
+function is  learned, users have  the choice to  run the network  in a
+feed-forward fashion to compute the error function, or to re-implement
+it directly  in a programming language.   Users can use our  system to
+find error  functions automatically,  but they  can also  use it  as a
+decision support  system to find  promising error functions  that they
+may modify and adapt by hand.
 
 \section*{Declarations}
 
