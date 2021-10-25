@@ -20,8 +20,8 @@
 %% to compile with pdflatex/xelatex use pdflatex option %%
 %%======================================================%%
 
-\documentclass[pdflatex,sn-mathphys]{sn-jnl}
-%\documentclass[pdflatex,referee,sn-mathphys]{sn-jnl}
+%\documentclass[pdflatex,sn-mathphys]{sn-jnl}
+\documentclass[pdflatex,referee,sn-mathphys]{sn-jnl}
 
 %% \documentclass[pdflatex,sn-basic]{sn-jnl}% Basic Springer Nature Reference Style/Chemistry Reference Style
 
@@ -95,6 +95,16 @@
   \end{trivlist}%
 }
 
+\newcommand{\efopmodel}[4]%
+{\begin{trivlist}
+  \item[]%
+    \textbf{Variables:} #1\\
+    \textbf{Domains:} #2\\
+    \textbf{Constraints:} #3\\
+    \textbf{Objective function:} #4
+  \end{trivlist}%
+}
+
 \newcommand{\flo}[1]{\textcolor{blue}{\bf Flo: \xspace #1}}
 \newcommand{\jf}[1]{\textcolor{red}{\bf JF: \xspace #1}}
 
@@ -104,7 +114,6 @@
 %   Error Functions Learning for Constraint Programming}
 
 \title[Automatic Error Function Learning with ICN]{Automatic Error Function Learning with Interpretable Compositional Networks}
-%\title[ ]{Automatic Error Function Learning with Interpretable Compositional Networks}
 
 %%=============================================================%%
 %% Prefix	-> \pfx{Dr}
@@ -404,9 +413,9 @@ modeling of \efsp/\efop.   We are tackling a  regression problem since
 the  goal is  to find  a function  that outputs  a target  value. More
 specifically,  looking for  the  model of  a function  in  a space  of
 mathematical representation  is a  symbolic regression  problem.  Such
-problems  are often  handled by  genetic programming  methods, but  we
-explain in Section~\ref{subsec:main_result} why  we do not use genetic
-programming to learn error functions in this work.
+problems  are often  handled by  Genetic Programming  methods, but  we
+explain  in Section~\ref{subsec:learning}  why we  do not  use Genetic
+Programming to learn error functions in this work.
 
 In this paper, we denote by \textbf{method} the methodology we propose
 to learn error function, and  by \textbf{system} the implementation of
@@ -652,7 +661,71 @@ and adapt by hand.
 
 \subsection{Learning \efsp/\efop models through an \efop model}\label{subsec:learning}
 
+As written in the introduction of Section~\ref{sec:method_design}, our
+error function  learning problem is  a symbolic regression  problem, a
+family of problems usually tackled through Genetic Programming.
 
+The issue with  learning error functions using  Genetic Programming is
+that,  in addition  of  having  a huge  search  space of  mathematical
+representations, we cannot guaranty  learning error functions that are
+independent from the input size, \ie,  from the number of variables in
+the scope of the target constraint. This property is mandatory to have
+a unique function  able to compute the error of  a given constraint on
+3, 30 or 300 variables.  This property also allows us to quickly learn
+error functions over small constraint scopes  in order to use them for
+computing the error of their constraints over large scopes.
+
+What we  do in this work  is actually solving a  \emph{biased symbolic
+  regression problem}, where  the bias is induced by  the structure of
+the  \icn we  provide.  The  architecture of  an \icn  to learn  error
+functions forces their shape and  drastically reduces the search space
+of mathematical  representations.  More  importantly, it  enforces the
+input size independence property.
+
+Learning an  error function via  an \icn corresponds to  selecting the
+right vertices  in such a way  that it both satisfies  some conditions
+and minimizes the difference with the Hamming or Manhattan cost on the
+constraint  assignment  space  used  as a  training  set.   Therefore,
+learning  an   error  function   is  simultaneously   a  combinatorial
+optimization  problem itself,  and a  regression problem  that can  be
+tackled      by     supervised      learning,     as      shown     in
+Section~\ref{subsec:main_result}.
+
+This combinatorial optimization problem can  actually be modeled as an
+\efop. We propose the following model:%
+\efopmodel%
+{One variable for each vertex in the \icn.}%
+{Boolean  domain  \(\{0,1\}\)  for each  variable,  representing  their
+  selection.}%
+{Mutual exclusion, No empty layer, Parameter-specific operations.}%
+{Loss function given by Equation~\ref{eq:loss}.}%
+
+The ``Mutual exclusion''  constraint is applied on the  three last layers,
+\ie, the  arithmetic, the  aggregation and  the comparison  layers. It
+ensures  that  exactly   one  vertex  in  each  of   these  layers  is
+selected.  This simply corresponds to the linear equation \(\sum_{v \in layer} v = 1\).
+We use \(\mid  1 - \sum_{v \in  layer} v \mid\) as  the error function
+for this contraint.
+
+The ``No empty layer'' constraint only concerns the first layer, where
+at least  one vertex need to  be selected. This can  be represented by
+the  linear inequation  \(\sum_{v \in  layer} v  \geq 1\)  and can  be
+represented by the error function \(Max(0, 1 - \sum_{v \in layer} v)\).
+
+Some  elementary operations  within our  \icn involve  the value  of a
+parameter \(p\)  in their  computation. Indeed, some  constraints need
+some parameters  to be defined, such  as the linear equation  with the
+constant   at   the   right   hand  side   of   the   equation.    The
+``Parameter-specific operations'' constraint  enforces that elementary
+operations can be part of the  operation combination if and only if we
+are dealing with  a constraint involving one or  some parameters. This
+constraint is easily  expressed as follows: considering  that \(m\) is
+the number  of selected  parameter-specific elementary  operations, if
+the  target constraint  contains some  parameters, then  we must  have
+\(m \geq  1\), otherwise \(m =  0\) must hold. The  error function for
+this constraint is then a combination of both previous error functions
+regarding if the target constraint  contains at least one parameter or
+not.
 
 % \section*{Declarations}
 
