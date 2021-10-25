@@ -530,10 +530,10 @@ Here is our method workflow in 4 points:
   \end{equation}
   with 
   \begin{align}
-    Hamming_{diff} &= \sum_{\vec x \in X} \mid ICN(\vec x) -
-                       Hamming(\vec x)\mid \nonumber \\
-    Manhattan_{diff} &= \sum_{\vec x \in X} \mid ICN(\vec x) -
-                         Manhattan(\vec x)\mid \nonumber \\
+    Hamming_{diff} &= \frac{\sum_{\vec x \in X} \mid ICN(\vec x) -
+                       Hamming(\vec x)\mid}{n} \nonumber \\
+    Manhattan_{diff} &= \frac{\sum_{\vec x \in X} \mid ICN(\vec x) -
+                         Manhattan(\vec  x)\mid}{n~\times (\mid  D\mid - 1)} \nonumber \\
     Regularization &= 0.9  \times  \frac{\text{Number  of  selected  vertices}}{\text{Total number of vertices}}
   \end{align}
   where \(X\) is the constraint assignment space, \icn(\(\vec x\)) the
@@ -542,7 +542,14 @@ Here is our method workflow in 4 points:
   pre-computed  Hamming  and  Manhattan  costs  of  \(\vec  x\)  (only
   approximated  if \(X\)  is  incomplete), and  a regularization  term
   between  0 and  0.9  to  favor short  \(\icn\)s,  \ie,  with as  few
-  elementary operations as possible.
+  elementary  operations  as  possible.   To make  a  fair  comparison
+  between the Hamming and Manhattan costs, we normalize these costs in
+  \([0,1]\) by dividing  the Hamming difference with  the number \(n\)
+  of variables  in the scope  of the  constraint, and by  dividing the
+  Manhattan  difference with  \(n\) times  the difference  between the
+  maximal  value and  the minimal  value  in the  domain of  variables
+  (corresponding  to the  cardinality of  the  domain minus  1 in  our
+  context).
 \item We have hold-out test sets of assignments from larger dimensions
   to evaluate the quality of our learned error functions.
 \end{enumerate}
@@ -631,10 +638,9 @@ among others.
 \end{example}
 
 All elementary operations  in our model are generic: we  do not choose
-them to fit one or several particular constraints.
-
-\flo{Donner la liste des 18  transformation et 9 comparison opérations
-  élémentaires.}
+them to fit  one or several particular constraints.  The complete list
+of the 18  transformation and 9 comparision  elementary operations are
+given in appendix.
 
 Although  an in-depth  study of  the elementary  operations properties
 would be interesting, this is out of the scope of this paper: its goal
@@ -652,19 +658,16 @@ have  a very  comprehensible combination  of elementary  operations to
 model  an error  function, making  it readable  and intelligible  by a
 human being.  For instance, the  most frequenly learned error function
 is
-\(Count_{>0}\big(\mid\{j\    \mid\    x[j]=x[i]     \text{    and    }
-j>i\}\mid\big)\)            for           AllDifferent,            and
-\(Euclidian_p\big(\sum^{n}_{i=1}  x[i]\big)\)   for  LinearSum  \flo{à
-  changer, c'est plus celle-là}, \ie, the
-Euclidian  division of  \(\big(\sum^{n}_{i=1} x[i]  - p\big)\)  by the
-maximal domain size,  with a parameter \(p\) equals to  the right hand
-side constant of the linear equation. Thus, once the model of an error
-function is  learned, users have  the choice to  run the network  in a
-feed-forward fashion to compute the error function, or to re-implement
-it directly  in a programming language.   Users can use our  system to
-find error  functions automatically,  but they  can also  use it  as a
-decision support  system to find  promising error functions  that they
-may modify and adapt by hand.
+\(Count_{>0}\big(\#\{j\ \mid\ x[j]=x[i] \text{ and } j>i\}\big)\)
+for AllDifferent, and \(\mid \big(\sum^{n}_{i=1} x[i]\big) - p\mid\)
+for  LinearSum,  with  \(p\)  the  right hand  side  constant  of  the
+equation. Thus, once the model of  an error function is learned, users
+have  the choice  to  run the  network in  a  feed-forward fashion  to
+compute  the error  function,  or  to re-implement  it  directly in  a
+programming  language.   Users  can  use  our  system  to  find  error
+functions  automatically, but  they  can  also use  it  as a  decision
+support system to find promising  error functions that they may modify
+and adapt by hand.
 
 \section*{Declarations}
 
@@ -711,6 +714,120 @@ BMC journals: \url{https://www.biomedcentral.com/getpublished/editorial-policies
 %% by copying the reference list from your .bbl file, paste it into the main manuscript .tex %%
 %% file, and delete the associated \verb+\bibliography+ commands.                            %%
 %%===========================================================================================%%
+
+\begin{appendices}
+
+\section{List of elementary operations}
+
+\subsection{Transformation layer}
+
+\begin{itemize}
+\item Identity
+  \begin{displaymath}
+    id(x_i) := x_i
+  \end{displaymath}
+
+\item Number of elements on the right equals to \(x_i\)
+  \begin{displaymath}
+    Count_{=}^{r}(x_i) := \#\{x_j \ \mid\  j>i\ \wedge\ x_j=x_i\}
+  \end{displaymath}
+
+\item Number of elements on the right smaller than \(x_i\)
+  \begin{displaymath}
+    Count_{<}^{r}(x_i) := \#\{x_j \ \mid\  j>i\ \wedge\ x_j<x_i\}
+  \end{displaymath}
+
+\item Number of elements on the right greater than \(x_i\)
+  \begin{displaymath}
+    Count_{>}^{r}(x_i) := \#\{x_j \ \mid\  j>i\ \wedge\ x_j>x_i\}
+  \end{displaymath}
+
+\item Number of elements on the left equals to \(x_i\)
+  \begin{displaymath}
+    Count_{=}^{l}(x_i) := \#\{x_j \ \mid\  j<i\ \wedge\ x_j=x_i\}
+  \end{displaymath}
+
+\item Number of elements on the left smaller than \(x_i\)
+  \begin{displaymath}
+    Count_{<}^{l}(x_i) := \#\{x_j \ \mid\  j<i\ \wedge\ x_j<x_i\}
+  \end{displaymath}
+
+\item Number of elements on the left greater than \(x_i\)
+  \begin{displaymath}
+    Count_{>}^{l}(x_i) := \#\{x_j \ \mid\  j<i\ \wedge\ x_j>x_i\}
+  \end{displaymath}
+
+\item Number of elements equals to \(x_i\) + param
+  \begin{displaymath}
+    Count_{=+p}(x_i) := \#\{x_j \ \mid\  x_j = x_i + param\}
+  \end{displaymath}
+
+\item Number of elements smaller than \(x_i\) + param
+  \begin{displaymath}
+    Count_{<+p}(x_i) := \#\{x_j \ \mid\  x_j < x_i + param\}
+  \end{displaymath}
+
+\item Number of elements greater than \(x_i\) + param
+  \begin{displaymath}
+    Count_{>+p}(x_i) := \#\{x_j \ \mid\  x_j > x_i + param\}
+  \end{displaymath}
+
+\item Max(0, \(x_i\) - param)
+\item Max(0, param - \(x_i\))
+\item Max(0, \(x_i - x_{i+1}\) )
+\item Max(0, \(x_{i+1} - x_i\) )
+\item Number of elements equals to \(x_i\)
+  \begin{displaymath}
+    Count_{=}(x_i) := \#\{x_j \ \mid\  x_j = x_i\}
+  \end{displaymath}
+
+\item Number of elements smaller than \(x_i\)
+  \begin{displaymath}
+    Count_{<}(x_i) := \#\{x_j \ \mid\  x_j < x_i\}
+  \end{displaymath}
+
+\item Number of elements greater than \(x_i\)
+  \begin{displaymath}
+    Count_{>}(x_i) := \#\{x_j \ \mid\  x_j > x_i\}
+  \end{displaymath}
+
+\item Number of elements greater than or equals to \(x_i\) AND less than or equals to \(x_i\) + param 
+  \begin{displaymath}
+    Count_{>=<+p}(x_i) := \#\{x_j \ \mid\ x_j \geq x_i \wedge x_j \leq x_i + param\}
+  \end{displaymath}
+
+\end{itemize}
+
+\subsection{Comparison layer}
+
+\begin{itemize}
+\item \(id(x) = x\)
+\item \(\mid x - param\mid \)
+\item \(Max( 0, param - x )\)
+\item \(Max( 0, x - param )\)
+\item \(Euclidian_p(x)\) := If(x = param) then 0 else 1 + \(\frac{\mid x - param\mid }{maximal\ domain\ size}\)
+\item \(Euclidian(x)\) := If(x = 0) then 0 else 1 + \(\frac{x}{maximal\ domain\ size}\)
+\item \(\mid\) x - number of variables\(\mid\)
+\item Max( 0, number of variables - x )
+\item Max( 0, x - number of variables )
+\end{itemize}
+
+%%=============================================%%
+%% For submissions to Nature Portfolio Journals %%
+%% please use the heading ``Extended Data''.   %%
+%%=============================================%%
+
+%%=============================================================%%
+%% Sample for another appendix section			       %%
+%%=============================================================%%
+
+%% \section{Example of another appendix section}\label{secA2}%
+%% Appendices may be used for helpful, supporting or essential material that would otherwise 
+%% clutter, break up or be distracting to the text. Appendices can consist of sections, figures, 
+%% tables and equations etc.
+
+\end{appendices}
+
 
 \bibliography{error_functions_learning}% common bib file
 %% if required, the content of .bbl file can be included here once bbl is generated
