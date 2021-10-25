@@ -727,6 +727,307 @@ this constraint is then a combination of both previous error functions
 regarding if the target constraint  contains at least one parameter or
 not.
 
+Modeling  and  solving  this  \efop  model has  been  done  using  the
+framework \ghost~\cite{GHOST}.
+
+\section{Attempts and failures}\label{sec:failures}
+
+We  strongly  believe  exposing  explored  directions,  attempts,  and
+reasons for their  failure can be highly beneficial  to the scientific
+community. Before showing our experimental  results, we sum up in this
+short section our  principal attempts and failures  to represent error
+functions before coming up with a representation through Interpretable
+Compositional Networks.
+
+\subsection{Series of sinusoids}\label{subsec:sinusoids}
+
+Let $f$  be a error function  we aim to  learn. Our first idea  was to
+represent error functions as a sum of $p$ sinusoids, such that
+\begin{displaymath}
+  f(\vec{x}) := \sum_{k=0}^{p}\big(a_k * cos(\vec{x}.2\pi.k) + b_k * sin(\vec{x}.2\pi.k)\big)
+\end{displaymath}
+Thus, learning $f$ boiled down to learning coefficients $a_i, b_i$.
+
+Although any functions,  even nonperiodic ones, can  be represented by
+such a sum, error functions we  want to learn might be too complicated
+and too high dimensional to be  easily expressed by a reasonably small
+sum of  sinusoids.  Moreover,  such a representation  of $f$  does not
+allow  to  express  relations  among variables  in  $\vec  x$,  unlike
+\icn. Furthermore, even if we could learn such a representation of $f$
+in  a small  dimensional  space, it  was unclear  how  to extend  this
+function to higher dimensions.
+
+We tried two approaches to learn $a_i, b_i$ coefficients: multivariate
+interpolation  and genetic  algorithms.  But  these approaches  failed
+mainly because of  the same reason: expressing error  functions with a
+sum of $p$ sinusoids led to either functions far from being satisfying
+($p < 40$) or with too many coefficients to learn ($p \geq 40$).
+
+\paragraph{Interpolation}   We  tried   different   tools  for   doing
+multivariate    interpolation    such    as    \textsc{chebpol}    and
+\textsc{splinter}, but it didn't lead to satisfying results, even when
+we sampled  10\% of the constraint  assignment space, which is  a huge
+part of an incomplete space.
+
+\paragraph{Genetic Algorithm} We start with a population of 100 random
+individuals,  where  an  individual  is  the  vector  of  real  values
+$(a_0, b_0,  \ldots, a_p,  b_p)$.  Those  coefficient are  assigned to
+random  values from  a  normal  distribution of  mean  0 and  standard
+deviation $\sqrt  n$, with $n$ the  number of variables of  the target
+constraint.   The  fitness  function  was to  maximize  the  empirical
+correlation length  multiplied by the  mean of  $f$ on samples  from a
+random walk  such that  $f(\vec{x}) \neq  0$.  The idea  was to  get a
+function $f$ with a low ruggedness (in other words, a smooth function)
+such that its value concerning non-solutions is high.
+
+The ruggedness of  a landscape can be computed by  doing a random walk
+from a random assignment, and compute the empirical correlation length
+$l$ (see  Hoss and Stützle~\cite{Hoos2005},  Chapter 5). To do  so, we
+need first to define the empirical autocorrelation function $r(i)$.
+\begin{displaymath}
+  r(i)               :=\frac{\frac{1}{(m-i)}\cdot\sum\limits_{k=1}^{m-i}\left(f_{k}-\overline{f}\right)
+    \cdot\left(f_{k+i}-\overline{f}\right)}{\frac{1}{m}\cdot\sum\limits_{k=1}^{m}\left(f_{k}-\overline{f}\right)^{2}}
+\end{displaymath}
+with $m$ the length of the random  walk, $f_k$ the value of $f$ on the
+$k$-th assignment of  the random walk, and $\overline{f}$  the mean of
+those $f_k$.
+
+We can then compute the empirical correlation length $l$ such that
+\begin{displaymath}
+  l := \frac{1}{ln(|r(1)|)}
+\end{displaymath}
+
+Intuitively, the higher the value $l$, the smoother the function $f$.
+
+However, we needed to avoid  learning a flat function projecting every
+assignment to the value 0 (it would be very smooth but also completely
+useless for the solver). To avoid this situation, the fitness function
+of the  genetic algorithm was  to maximize $l$  times the mean  of $f$
+over  assignments in  the  random  walk that  are  not solutions  (ie,
+$f(\vec{x})  \neq  0$).   Thus,  the algorithm  was  supposed  to  try
+learning   smooth  functions   that  severely   penalize  non-solution
+assignments.
+
+
+\subsection{\cppn}
+
+Before  expressing  error  functions   with  \(\icn\)s,  we  tried  to
+represent  them   with  a  Compositional   Pattern-Producting  Network
+(\cppn),  a  variant  of  neural networks  from  which  \(\icn\)s  are
+inspired  from.   Our  \cppn  architecture  was  a  two-layer  network
+composed of units with an  activation function among the identity, the
+absolute value, the  sine function, the hyperbolic  tangent, the cubic
+hyperbolic tangent, a sigmoid function, and a Gaussian function.
+
+\paragraph{\efop} We  first tried  to tackle  the problem  of learning
+error  functions represented  by a  \cppn as  an optimization  problem
+modeled  as an  \efop.  We  have  one variable  for each  unit in  the
+network to express  its selection (or its absence) to  model the error
+function. Domains are  then binary. A constraint  assured that outputs
+of  the \cppn  given some  assignments as  input are  greater than  or
+equals to  the Hamming distance  of these assignments. To  have smooth
+functions,  we also  considered the  objective function  based on  the
+computation  of the  landscape  ruggedness, as  introduced in  Section
+\ref{subsec:sinusoids} above.   However, such an \efop  model revealed
+itself  to  be  inefficient  due  to  a  unique  constraint  over  all
+variables, which was quite artificial and  led to a poor (actually, an
+absent)  constraint  network that  neither  a  complete solver  nor  a
+constraint-based local  search can  exploit.  Moreover,  computing the
+ruggedness as an objective function to have smooth functions tended to
+output very flat functions.
+
+We  also  felt  that  activation  functions of  our  \cppn  where  too
+arbitrate to express error functions. We  then had the idea to replace
+these activation functions with more meaningful ones in the context of
+comparing  and  evaluating values  in  a  assignment, leading  to  our
+current Interpretable Compositional Networks.
+
+\section{Experiments}\label{sec:experiments}
+
+To show the versatility of our method, we tested it on seven different
+constraints:   AllDifferent,   Ordered,   LinearSum,   LinearLessThan,
+LinearGreaterThan,  NoOverlap1D,  and   Minimum.   According  to  XCSP
+specifications~\cite{XCSP-paper}\footnote{see                     also
+  \url{http://xcsp.org/specifications}},   those  global   constraints
+belong  to  four  different  families:  Comparison  (AllDifferent  and
+Ordered),      Counting/Summing       (LinearSum,      LinearLessThan,
+LinearGreaterThan),  Packing/Scheduling  (NoOverlap1D) and  Connection
+(Minimum).  Again according to  XCSP specifications, these constraints
+are among the  twenty most popular and common constraints.   We give a
+brief description of those seven constraints below:
+
+\begin{itemize}
+  \item \textbf{AllDifferent} ensures  that variables must all  be assigned
+  to different values.
+  \item \textbf{LinearSum}       ensures       that      the       equation
+  \(x_1 + x_2 +  \ldots + x_n = p\) holds, with the  parameter \(p\) a given
+  integer.
+\item    \textbf{LinearLessThan}   ensures    that   the    inequation
+  \(x_1 + x_2 + \ldots + x_n  \leq p\) holds, with the parameter \(p\)
+  a given integer.
+\item   \textbf{LinearGreaterThan}   ensures   that   the   inequation
+  \(x_1 + x_2 + \ldots + x_n  \geq p\) holds, with the parameter \(p\)
+  a given integer.
+  \item \textbf{Minimum} ensures  that the  minimum value of  an assignment
+  verifies  a given  numerical condition.  In this  paper, we  choose to
+  consider that  the minimum value must  be greater than or  equals to a
+  given parameter \(p\).
+  \item \textbf{NoOverlap1D}  is considering  variables as  tasks, starting
+  from a  certain time (their  value) and each  with a given  length \(p\)
+  (their  parameter).   The  constraint   ensures  that  no   tasks  are
+  overlapping,  \ie, for  all indexes  \(i,j  \in \{1,n\}\)  with \(n\)  the
+  number   of   variables,  we   have   \(x_i   +   p_i  \leq   x_j\)   or
+  \(x_j + p_j  \leq x_i\). To have  a simpler code, we  have considered in
+  our system that all tasks have the same length \(p\).
+\item  \textbf{Ordered} ensures  that an  assignment of  \(n\) variables
+  \((x_1\mathrel{,} \ldots\mathrel{,}  x_n)\) must  be ordered,  given a
+  total  order.  In  this paper,  we  choose the  total order  \(\leq\).
+  Thus,  for  all   indexes  \(i,j  \in  \{1,n\}\),  \(i   <  j\)  implies
+  \(x_i \leq x_j\).
+\end{itemize}
+
+\subsection{Experimental protocols}\label{subsec:experimental_protocols}
+
+We conducted three experiments, with  two of them requiring samplings.
+These samplings have been done  using Latin hypercube sampling to have
+a good diversity  among drawn assignments.  We  draw assignments until
+we get \(k\) solutions and \(k\) non-solutions.
+
+Due to  stochastic learning, all  learning and testing have  been done
+100 times.  We did not re-run  batches of experiments to keep the ones
+with  the best  results, as  it should  always be  the case  with such
+experimental protocols.
+
+All experiments have been  done on a computer with a  Core i9 9900 CPU
+and 32 GB of RAM, running on Ubuntu 20.04. Programs have been compiled
+with GCC with  the 03 optimization option. Our entire  system, its C++
+source code, experimental setups, and the results files are accessible
+on
+GitHub\footnote{\url{https://github.com/richoux/LearningErrorFunctions/tree/2.0} }.
+
+\subsubsection{Experiment 1: scaling}\label{subsubsec:xp1}
+
+The goal  of this experiment is  to show that learned  error functions
+scale to  high-dimensional constraints, indicating that  learned error
+functions are independent of the size of the constraint scope.
+
+For  this  experiment,  error  functions are  learned  upon  a  small,
+complete constraint assignment space, composed of about 500\(\sim\)600
+assignments  and containing  about 10\(\sim\)20\%  of solutions.   For
+each constraint, we run 100  error function learning over pre-computed
+complete constraint assignment space.  Then, we compute the test error
+of these  learned error  functions over a  sampled test  set.  Sampled
+test sets contain 10,000 solutions  and 10,000 non-solutions, with 100
+variables on domains of size 100, belonging to a constraint assignment
+space  of  size  \(100^{100}~=~10^{200}\), thus  greatly  larger  than
+training spaces containing 500\(\sim\)600
+assignments.  For some constraints, it was not possible to reach this
+constraint assignment  space size  for a test  set.  We  explain which
+constraints and why in Section~\ref{sec:results_xp1}. \flo{Ou alors maintenant.}
+
+We show  normalized mean training  and test errors: first,  we compute
+the mean  error among  all assignments composing  the training  or the
+test set. Normalization is done like in Equation~\ref{eq:loss}: errors
+from error functions approximating the Hamming cost are divided by the
+number of variables  composing the assignments, and  errors from error
+functions approximating the  Manhattan cost are divided  by the number
+of variables composing the assignments times to difference between the
+maximal and the minimal value in the domains.
+
+Concidering  normalized errors  is important:  for instance,  having a
+Hamming-like mean error of 5 on  assignments with 10 variables and 100
+variables  is significantly  different:  looking  at their  normalized
+error allows to realized that the first one implies a mean error every
+2 variables, the second a mean error one in 20 variables.
+
+\subsubsection{Experiment 2: learning over incomplete spaces}\label{subsubsec:xp2}
+
+If, for any reasons, it is not possible to build a complete constraint
+assignment  space, a  robust system  must be  able to  learn effective
+error functions upon large, incomplete  spaces where the exact Hamming
+and Manhattan costs of their assignments is unknown.
+
+In this experiment,  we built pre-sampled training  spaces by sampling
+10,000  solutions   and  10,000  non-solutions  on   large  constraint
+assignment  spaces of  size between  \(10^{12}\) and  \(10^{13}\), and
+with  solution  rates from  \(0.15\)\%  to  \(2.10^{-7}\)\%. Then,  we
+approximate the  Hamming and Manhattan  costs of each  non-solution by
+computing  their  Hamming and  Manhattan  distances  with the  closest
+solution among  the 10,000  ones, and learn  error functions  on these
+20,000 assignments  and their  estimated Hamming and  Manhattan costs.
+Like for  Experiment~1, we run  100 error functions learning  of these
+pre-sampled incomplete  spaces, so  that each  learning relies  on the
+same training set.   Finally, we evaluate the  learned error functions
+over the same test sets than Experiment~1.
+
+\subsubsection{Experiment 3: learned error functions to solve problems}\label{subsubsec:xp3}
+
+The goal of  this experiment is to assess that  learned error function
+can effectively be used to  solve 4 classic combinatorial problems. We
+modeled   these  problems   and   solve  them   using  the   framework
+\ghost~\cite{GHOST}.
+
+We  consider  the  mean  and  median  run-time  to  compare  different
+representations of our constraints.  We have two baselines: 1., a pure
+\csp model  where constraints are  predicates, and 2., an  \efsp model
+with an efficient hand-crafted error function for each constraint.  We
+compare those with  two models using error functions  learned with our
+system: a.,  our \efsp model  using the most frequently  learned error
+function from  the previous  experiments and  computed by  running the
+\icn graph in a fast-forward fashion, and b., our \efsp model with the
+same error  function but directly  hard-coded in C++.  The  solver and
+its parameters  remain the same:  the only  thing that is  modified in
+these   four    different   models   is   the    expression   of   the
+constraint.   Notice   that    for   LinearSum,   LinearLessThan   and
+LinearGreaterThan, our system learned  the canonical and optimal error
+function, so the hand-crafted and hard-coded versions are the same.
+
+All  problem instances  have been  solved  100 times  each, using  the
+constraint-based local  search solver within the  framework \ghost, in
+sequential mode.  For each  run, we set a timeout of  1 second.  If no
+solutions have been  found within 1 second, we consider  the run to be
+unsolved.
+
+\paragraph{Sudoku} Sudoku is a puzzle  game where the player must fill
+a grid with numbers from 1 to  \(n\), \(n\) being the size of the side
+of the grid,  such that all numbers  in the same row,  the same column
+and the same sub-square must be different.  Sudoku can be modeled as a
+satisfaction problem  using the AllDifferent constraint  only.  We run
+100  resolutions  of  random \(9\times9\)  and  \(16\times16\)  Sudoku
+grids.
+
+\paragraph{Magic Square} Magic Square is a $n \times n$ grid that must
+be filled up with  all number from 1 to $n^2$  (thus, all numbers must
+appear exactly once in the grid), such  that the sum of each row, each
+column, and the two diagonals must be equal to a constant $c$.  We can
+avoid using  the AllDifferent  constraint by  randomly filling  up the
+grid with  all expected numbers and  ask the solver to  find a correct
+permutation.  The constraints  over  the rows,  columns,  and the  two
+diagonal  are modeled  with  LinearSum  since the  value  of $c$  only
+depends on $n$ and is known to be $c = n(n^2 + 1)/2$.
+
+\paragraph{Killer Sudoku} Killer  Sudoku is the same as  Sudoku but in
+such a way that  the grid is paved with blocks  of cells, named cages,
+usually composed  of 2,  3, or  4 cells.  Each  cage is  associated an
+integer, and the sum of numbers in their cells must be equals to their
+integer. A  killer Sudoku  instance starts with  an empty  grid, cages
+preventing from  trivial solutions. AllDifferent constraints  are used
+to model the  regular Sudoku rules of this puzzle  game, and LinearSum
+constraints are modeling cages.
+
+\paragraph{k-Vertex Cover}  k-Vertex Cover is the  decision version of
+the  graph problem  Vertex Cover:  given a  graph, one  must select  a
+subset of vertices such that all edges  in the graph have at least one
+vertex  from  this  subset  as   an  endpoint.   Vertex  Cover  is  an
+optimization problem where  the goal is to find the  minimal subset of
+vertices  with  this  property.  The k-Vertex  Cover  problem  is  the
+decision  version where  the goal  is  to check  if such  a subset  of
+cardinality at most k exists.  k-Vertex Cover can be modeled using the
+two constraints LinearLessThan for checking that we do not select more
+than k  vertices, and  LinearGreaterThan to make  sure that  all edges
+have at least one of their endpoints among selected vertices.
+
+
 % \section*{Declarations}
 
 % Some journals require declarations to be submitted in a standardised format. Please check the Instructions for Authors of the journal to which you are submitting to see if you need to complete this section. If yes, your manuscript must contain the following sections under the heading `Declarations':
