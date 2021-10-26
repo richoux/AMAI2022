@@ -39,6 +39,7 @@
 %% <additional latex packages if required can be included here>
 \usepackage{subcaption}
 \usepackage{xspace}
+\usepackage{color, colortbl}
 %%%% 
 
 %%%%%=============================================================================%%%%
@@ -104,6 +105,9 @@
     \textbf{Objective function:} #4
   \end{trivlist}%
 }
+
+\definecolor{Gray}{gray}{0.9}
+\newcolumntype{g}{>{\columncolor{Gray}}l}
 
 \newcommand{\flo}[1]{\textcolor{blue}{\bf Flo: \xspace #1}}
 \newcommand{\jf}[1]{\textcolor{red}{\bf JF: \xspace #1}}
@@ -813,8 +817,8 @@ assignments.
 
 Before  expressing  error  functions   with  \(\icn\)s,  we  tried  to
 represent  them   with  a  Compositional   Pattern-Producting  Network
-(\cppn),  a  variant  of  neural networks  from  which  \(\icn\)s  are
-inspired  from.   Our  \cppn  architecture  was  a  two-layer  network
+(\cppn)~\cite{CPPN}, a variant of neural networks from which \(\icn\)s
+are inspired  from.  Our  \cppn architecture  was a  two-layer network
 composed of units with an  activation function among the identity, the
 absolute value, the  sine function, the hyperbolic  tangent, the cubic
 hyperbolic tangent, a sigmoid function, and a Gaussian function.
@@ -1027,6 +1031,198 @@ two constraints LinearLessThan for checking that we do not select more
 than k  vertices, and  LinearGreaterThan to make  sure that  all edges
 have at least one of their endpoints among selected vertices.
 
+\subsection{Results}\label{subsec:results}
+
+In this part, we denote by \(n\) the number of variables, \(d\) the domain
+size, and \(p\) the value of a possible parameter. Constraint instances
+are denoted by \emph{name-n-d[-p]}.
+
+\subsubsection{Experiments 1 \& 2}\label{subsubsec:results_xp1}
+
+Tables~\ref{tab:training_complete}   and~\ref{tab:training_incomplete}
+show the  training errors of Experiments~1  and~2, respectively, where
+error functions have been learned  100 times for each constraint.  The
+first column contains  the normalized mean training error  of the most
+frequently  learned  error  function  among the  100  runs,  with  its
+frequency in parenthesis.   Next columns concern the  median, the mean
+and the standard deviation.
+
+Learning an error function is done  quickly: we set a timeout of 200ms
+to learn an error function  over complete constraint assignment spaces
+from  Experiment~1,  and  30s over  incomplete  constraint  assignment
+spaces from Experiment~2.  Learnings have been done  in parallel using
+16 threads.
+
+\begin{table}[h]
+  \begin{center}
+    \begin{minipage}{270pt}
+      \caption{Training errors (100 runs)  of Experiment~1, over small and
+        complete constraint assignment spaces.}\label{tab:training_complete}
+      \begin{tabular}{@{}g|g|g|g|g@{}}
+        \toprule
+        \rowcolor{white}
+        Constraints & most freq & median & mean & std dev \\
+        \midrule
+        \rowcolor{white}
+        AllDifferent-4-5 & 0 ~~~~~(100)& 0 & 0 & 0 \\
+        LinearSum-3-8-12 & 0 \,~~~~~~(74)& 0 & 0.005 & 0.014 \\
+        \rowcolor{white}
+        LinearLessThan-3-8-12 & 0 \,~~~~~~(85)& 0 & 0.008 & 0.021 \\
+        LinearGreaterThan-3-8-12 & 0 \,~~~~~~(92)& 0 & 0.003 & 0.012 \\
+        \rowcolor{white}
+        Minimum-4-5-3 & 0 \,~~~~~~(82)& 0 & 0.005 & 0.016 \\
+        NoOverlap-3-8-2 & 0.007 ~(34)& 0.007 & 0.009 & 0.003\\
+        \rowcolor{white}
+        Ordered-4-5 & 0.009 ~(80)& 0.009 & 0.013 & 0.010\\
+        \botrule
+      \end{tabular}
+    \end{minipage}
+  \end{center}
+\end{table}
+
+\begin{table}
+  \begin{center}
+    \begin{minipage}{270pt}
+      \caption{Training errors (100 runs)  of Experiment~2, over large and
+        incomplete constraint assignment spaces.}\label{tab:training_incomplete}
+      \begin{tabular}{@{}g|g|g|g|g@{}}
+        \toprule
+        \rowcolor{white}
+        Constraints & most freq & median & mean & std dev \\
+        \midrule
+        \rowcolor{white}
+        AllDifferent-12-12 & 0.018 ~~(91)& 0.018 & 0.019 & 0.001 \\
+        LinearSum-12-12-42 & \(2e^{-4}\) \,~~(63)& \(2e^{-4}\)& 0.015 & 0.031\\
+        \rowcolor{white}
+        LinearLessThan-12-12-42 & \(4e^{-4}\) \,~~(50)& 0.005 & 0.022 & 0.033 \\
+        LinearGreaterThan-12-12-42 & 0.027 ~~(46)& 0.034 & 0.032 & 0.004 \\
+        \rowcolor{white}
+        Minimum-12-12-6 & 0.019 ~~(24)& 0.021 & 0.022 & 0.004 \\
+        NoOverlap-8-32-3 & 0.030 ~~(19)& 0.030 & 0.029 & 0.002\\
+        \rowcolor{white}
+        Ordered-12-12 & 0.019 ~~(99)& 0.019 & 0.019 & 0.001\\
+        \botrule
+      \end{tabular}
+    \end{minipage}
+  \end{center}
+\end{table}
+
+\noindent
+Table~\ref{tab:test} contains the normalized mean test errors of error
+functions learned  with Experiments~1 and~2, with  their median, mean
+and standard  deviation. The  normalized mean test  error of  the most
+frequently  learned  error  function   for  each  constraint  in  each
+experiment  has  been isolated  in  the  first  column of  number,  for
+comparison.
+
+\begin{table}
+  \begin{center}
+    \begin{minipage}{330pt}
+      \caption{Test errors (100 runs) in high dimensions of error functions learned
+        with Experiments~1 and~2.}\label{tab:test}
+      %\small
+      \begin{tabular}{@{}c|g|g|g|g|g@{}}
+        \toprule
+        \rowcolor{white}
+        Exp. & Constraints & most freq & median & mean & std dev \\
+        \midrule
+        \rowcolor{white}
+        \multirow{7}{*}{1} &
+                             AllDifferent-100-100 & 0 & 0 & ~~0 & ~~~0 \\
+             &LinearSum-100-100-5279 & 0 & 0 & ~~0.001 & ~~~0.004 \\
+        \rowcolor{white}
+             &LinearLessThan-100-100-5279 & 0 & 0 & 19.790 & 117.033 \\
+             &LinearGreaterThan-100-100-5279 & 0 & 0 & ~~0.003 & ~~~0.007 \\
+        \rowcolor{white}
+             &Minimum-100-100-30 & 0 & 0 & ~~0.026 & ~~~0.123 \\
+             &NoOverlap-10-35-3 & 0.062 & 0.062 & ~~0.060 & ~~~0.004\\
+        \rowcolor{white}
+             &Ordered-12-18 & 0.035 & 0.035 & ~~0.045 & ~~~0.022\\
+        \midrule
+        \rowcolor{white}
+        \multirow{7}{*}{2} &
+                             AllDifferent-100-100 & 0.006 & 0.006 & ~~0.007 & ~~~0.001 \\
+             &LinearSum-100-100-5279 & 0 & 0 & ~~0.186 & ~~~0.659 \\
+        \rowcolor{white}
+             &LinearLessThan-100-100-5279 & 0 & 0.001 & ~~0.224 & ~~~0.692 \\
+             &LinearGreaterThan-100-100-5279 & 0.020 & 0.020 & ~~0.020 & ~~~\(1e^{-4}\) \\
+        \rowcolor{white}
+             &Minimum-100-100-30 & 0.200 & 0.200 & ~~0.208 & ~~~0.100 \\
+             &NoOverlap-10-35-3 & 0.050 & 0.041 & ~~0.041 & ~~~0.004\\
+        \rowcolor{white}
+             &Ordered-12-18 & 0.037 & 0.037 & ~~0.045 & ~~~0.022\\
+        \botrule
+      \end{tabular}
+    \end{minipage}
+  \end{center}
+\end{table}
+
+\noindent
+Comparing  Table~\ref{tab:training_complete} with  the  first half  of
+Table~\ref{tab:test} lead  us to conclude  that our system is  able to
+learn  error   functions  that  scale  for   most  constraint,  namely
+AllDifferent,   LinearSum,   LinearLessThan,   LinearGreaterThan   and
+Minimum. Our system  has been able to find the  exact Hamming distance
+or Manhattan distance for these constraints.
+
+Observe that LinearLessThan has a  surprizingly high mean and standard
+deviation. This  is due to  an error  function that show  an excellent
+score on the training set but a very poor score on the test sets.  Our
+system was  overfitting this  training set twice  within 100  runs. In
+practice, this problem  could be alleviate by letting  more than 200ms
+to the solver to find an optimal solution, by taking a slightly larger
+training set or eventually by running a second time the error function
+learning, if  the user realises  that it  performs poorly on  the test
+set. Since the  learning is done very quickly (as  well as testing the
+error function), this is not a major issue for the actual usage of our
+system.
+
+Althought not perfect,  results are good for  NoOverlap1D and Ordered,
+which  are clearly  the most  intrinsically combinatorial  constraints
+among our seven ones. Our system is able to learn error functions with
+a low test errors and a  low standard deviation of performance between
+the different learned functions.  However, since their training errors
+are significantly lower  than their test errors, one  could think that
+our system  is overfitting  on thses training  sets, but  results from
+Experiment~2 lead us to another conclusion.
+
+First, let's  analyse the results  of our five first  constraints over
+large, incomplete  training sets. It  is important to stress  that the
+real Hamming  and Manhattan costs  in these training sets  are unknown
+and  roughtly   approximated  on  purpose.    Nevertheless,  Comparing
+Table~\ref{tab:training_incomplete}   with   the    second   half   of
+Table~\ref{tab:test}  shows  us  that  our system  was  able  to  find
+high-quality    error   functions    for   AllDifferent,    LinearSum,
+LinearLessThan and LinearGreaterThan. This illustrates that our system
+can  learn   efficient  error  function  over   incomplete  constraint
+assignment spaces.   Obseve that the  learned error functions  for the
+Minimum  constraint over  incomplete spaces  perform poorly,  while it
+learn a  perfect error function  over complete spaces.  The  reason is
+the  following:  over  complete  spaces, learned  error  function  for
+Minimum   reproduce  the   Hamming   cost,  which   is  an   excellent
+choice. However,  sampled assignments  that constitute  the incomplete
+space guide the solver toward Manhattan-like error functions, which is
+a poor choice for this constraint.
+
+Let's focus now on NoOverlap1D and Ordered. Looking at their scores on
+the first  and second  part of Table~\ref{tab:test},  we can  see that
+their  performances  are similar  and  very  homogeneous, with  a  low
+standard deviation.  This  is explained but the fact  that their error
+functions learned  over both complete  and incomplete spaces  are very
+similar, showing  that our system  was not overfitting  their complete
+training  sets.  The  reason explaining  the difference  between their
+training  errors in  Table~\ref{tab:training_complete}  and the  first
+half  of Table~\ref{tab:test}  is because  their training  spaces from
+Experiment~1   were  too   small   for   these  highly   combinatorial
+constraints,   containing   too   few   different   combinations   and
+Hamming/Manhattan cost  patterns. In  other words, those  small spaces
+does  not contain  the  most trickier,  complex  assignments an  error
+function should handle.
+
+We give  in appendix  the list  of the  most frequently  learned error
+function  for  each  constraint,  both over  complete  and  incomplete
+spaces.
+
 
 % \section*{Declarations}
 
@@ -1193,6 +1389,44 @@ have at least one of their endpoints among selected vertices.
 \item Max( 0, number of variables - x )
 \item Max( 0, x - number of variables )
 \end{itemize}
+
+\section{Most frequently learned error functions}
+
+Elementary  operations  from  the  transformation  layer  are  applyed
+element-wise. Therefore,  an operation like  \(Count_{=}^{l}(\vec x)\)
+is  applied  on  each  element  \(x[i]\) of  the  vector  \(\vec  x\),
+producing a transformed vector.
+
+We  denote by  \(n\), \(d\)  and \(p\)  the number  of variables,  the
+domain size and the value of the parameter, respectively.
+
+\subsection{Complete spaces}
+
+\begin{equation*}
+  \begin{array}{ll}
+    AllDifferent: &\(Count_{>0}\big( Count_{=}^{l}(\vec x)\big)\)\\
+    LinearSum: &\(\mid\sum_{i=1}^n x[i] - p\mid\)\\
+    LinearLessThan: &\(Max( 0, \sum_{i=1}^n x[i] - p )\)\\
+    LinearGreaterThan: &\(Max( 0, p - \sum_{i=1}^n x[i] )\)\\
+    Minimum: &\(Count_{>0}\big(Max(0, p - x[i])\big)\)\\
+    NoOverlap: &\(Max\Big( 0, \sum_{i=1}^n\left(Count_{=}^{l}(\vec x) + Count_{<+p}(\vec x)\right) - n \Big)\)\\
+    Ordered: &\(\sum_{i=1}^n\big(Max(0, x[i] - x[i+1] )\big)\)\\
+  \end{array}
+\end{equation*}
+
+\subsection{Incomplete spaces}
+
+\begin{equation*}
+  \begin{array}{ll}
+    AllDifferent: &\(Count_{>0}\big( Count_{=}(\vec x) + Count_{=}^{r}(\vec x)\big)\)\\
+    LinearSum: &\(\mid\sum_{i=1}^n x[i] - p\mid\)\\
+    LinearLessThan: &\(Max( 0, \sum_{i=1}^n x[i] - p )\)\\
+    LinearGreaterThan: &\(Max\Big( 0,  p - \sum_{i=1}^n\big(id(\vec x) \times Max(0, x[i+1] - x[i] )\big) \Big)\)\\
+    Minimum: &\(Max\Big( 0,  \sum_{i=1}^n\big(Count_{>+p}(\vec x) + Max(0, p - x[i] )\big) - p\Big)\)\\
+    NoOverlap: &\(Max\Big( 0, \sum_{i=1}^n\left(Count_{>=<+p}(\vec x) + Count_{<+p}(\vec x)\right) - p \Big)\)\\
+    Ordered: &\(\sum_{i=1}^n\big(Count_{<}^{r}(\vec x)\big)\)\\
+  \end{array}
+\end{equation*}
 
 %%=============================================%%
 %% For submissions to Nature Portfolio Journals %%
