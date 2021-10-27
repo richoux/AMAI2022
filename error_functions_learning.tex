@@ -155,15 +155,14 @@
   knowledge, the first attempt  to automatically learn error functions
   for hard constraints.  Our method aims to learn error functions in a
   supervised fashion,  trying to reproduce  either the Hamming  or the
-  Manhattan distance, by  using a variant of neural  networks we named
-  Interpretable Compositional Networks. This  variant allows us to get
-  interpretable  results,   unlike  with  regular   artificial  neural
-  networks.  We run experiments on 7 different constraints to show its
+  Manhattan distance,  by using a  graph model we  named Interpretable
+  Compositional Networks.   This model allows us  to get interpretable
+  results.  We run experiments on  7 different constraints to show its
   versatility.  Experiments  show that our system  can learn functions
   that scale to  high dimensions, and can learn  fairly good functions
-  over incomplete  spaces. We also  show that learned  error functions
+  over incomplete spaces.   We also show that  learned error functions
   can  be  used  efficiently  to represent  constraints  in  different
-  classic problems.  }
+  classic problems.}
 
 \keywords{Combinatorial Satisfaction, Combinatorial Optimization, Constraint Programming, Problem Modeling, Error Function, Interpretable Learning}
 
@@ -214,12 +213,12 @@ been explored in Constraint Programming.
 
 Constraint  Satisfaction Problem  (\csp) and  Constrained Optimization
 Problem (\cop) are constraint-based  problems defined upon a classical
-hard-constraint network,  where constraints can be  seen as predicates
+hard constraint network, where constraints can be seen as predicates
 allowing or forbidding some combinations of variable assignments.
 
 Likewise,  Error  Function  Satisfaction  Problem  (\efsp)  and  Error
 Function  Optimization Problem  (\efop) are  constraint-based problems
-defined upon  a specific hard-constraint network named  cost function
+defined upon a specific hard constraint network named cost function
 network~\cite{GuidedTour}        or        semi-ring        constraint
 network~\cite{handbookCP}.   Both  networks  are  equivalent  for  the
 purpose of  this paper: cost  function networks exactly  correspond to
@@ -243,16 +242,16 @@ commutative,  associative,  and   monotone  aggregation  operator  and
 \(\oplus\), respectively.
 
 In  Constraint Programming,  cost  functions are  often associated  to
-soft-constraints: they can be interpreted as preferences over valid or
+soft constraints: they can be interpreted as preferences over valid or
 acceptable assignments.  However, this is not necessarily the case: it
 actually depends on  the cost structure.  For  instance, the classical
 cost structure
 \[S_{t/f} = \langle \{true, false\}, \wedge, true, false\rangle\] make
 the  cost  function  network  equivalent  to  a  classical  constraint
-network, so dealing with hard-constraints.
+network, so dealing with hard constraints.
 
 Here,  we  consider  particular  cost functions  that  also  represent
-hard-constraints  only, by  considering  the  additive cost  structure
+hard constraints only, by considering the additive cost structure
 \(S_+ = \langle \mathbb{R}, +,  0, \infty\rangle\).  The additive cost
 structure produces  useful cost  function networks  capturing problems
 such as Maximum Probability Explanation (MPE) in Bayesian networks and
@@ -315,9 +314,9 @@ literature,  like in  Codognet et  al.~\cite{AS} describing  the local
 search algorithm  Adaptive Search.   We can  also find  the equivalent
 term   ``penalty   function''~\cite{Galinier04}   for   local   search
 algorithms in  Constraint Programming.  However, penalty  function can
-also refers to functions representing soft-constraints in Mathematical
+also refers to functions representing soft constraints in Mathematical
 Programming~\cite{MezuraMontes2011}.   Therefore, to  avoid confusions
-with  cost functions  or  penalty functions  for soft-constraints,  we
+with cost functions or penalty functions for soft constraints, we
 opted for the name ``error function''.
 
 Let \(\vec  x\) be a variable  assignment, and denote by  \(\vec x_c\)
@@ -1388,7 +1387,7 @@ Satisfaction and  Optimization Problems,  and we  present a  method to
 learn   error  functions   automatically   upon  a   model  based   on
 Interpretable  Compositional Networks,  a particluar  directed acyclic
 graph.  To  the best of  our knowledge, this  is the first  attempt to
-learn error functions for hard-constraints automatically.
+learn error functions for hard constraints automatically.
 
 We  have  tested   our  system  over  7   different  constraints.   In
 Experiment~1 over small and complete training spaces, it finds the the
