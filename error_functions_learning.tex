@@ -967,12 +967,12 @@ over the same test sets than Experiment~1.
 \subsubsection{Experiment 3: learned error functions to solve problems}\label{subsubsec:xp3}
 
 The goal of  this experiment is to assess that  learned error function
-can effectively be used to  solve 4 classic combinatorial problems. We
+can effectively be used to  solve 3 classic combinatorial problems. We
 modeled   these  problems   and   solve  them   using  the   framework
 \ghost~\cite{GHOST}.
 
 We  consider  the  mean  and  median  run-time  to  compare  different
-representations of our constraints.  We have two baselines: 1., a pure
+representations of our constraints.  We have two baselines\flo{à revoir}: 1., a pure
 \csp model  where constraints are  predicates, and 2., an  \efsp model
 with an efficient hand-crafted error function for each constraint.  We
 compare those with  two models using error functions  learned with our
@@ -982,14 +982,15 @@ function from  the previous  experiments and  computed by  running the
 same error  function but directly  hard-coded in C++.  The  solver and
 its parameters  remain the same:  the only  thing that is  modified in
 these   four    different   models   is   the    expression   of   the
-constraint.   Notice   that    for   LinearSum,   LinearLessThan   and
-LinearGreaterThan, our system learned  the canonical and optimal error
-function, so the hand-crafted and hard-coded versions are the same.
+constraint.  Notice that for LinearSum, % LinearLessThan and
+% LinearGreaterThan
+our system  learned the canonical  and optimal error function,  so the
+hand-crafted and hard-coded versions are the same.
 
 All  problem instances  have been  solved  100 times  each, using  the
 constraint-based local  search solver within the  framework \ghost, in
-sequential mode.  For each  run, we set a timeout of  1 second.  If no
-solutions have been  found within 1 second, we consider  the run to be
+sequential mode.  For each run, we set a timeout of 60 seconds.  If no
+solutions have been found within 60 seconds, we consider the run to be
 unsolved.
 
 \paragraph{Sudoku} Sudoku is a puzzle  game where the player must fill
@@ -997,8 +998,8 @@ a grid with numbers from 1 to  \(n\), \(n\) being the size of the side
 of the grid,  such that all numbers  in the same row,  the same column
 and the same sub-square must be different.  Sudoku can be modeled as a
 satisfaction problem  using the AllDifferent constraint  only.  We run
-100  resolutions  of  random \(9\times9\)  and  \(16\times16\)  Sudoku
-grids.
+100   resolutions   of   random   \(9\times9\),   \(16\times16\)   and
+\(25\times25\) Sudoku grids.
 
 \paragraph{Magic Square} Magic Square is a $n \times n$ grid that must
 be filled up with  all number from 1 to $n^2$  (thus, all numbers must
@@ -1006,9 +1007,12 @@ appear exactly once in the grid), such  that the sum of each row, each
 column, and the two diagonals must be equal to a constant $c$.  We can
 avoid using  the AllDifferent  constraint by  randomly filling  up the
 grid with  all expected numbers and  ask the solver to  find a correct
-permutation.  The constraints  over  the rows,  columns,  and the  two
+permutation.   The constraints  over the  rows, columns,  and the  two
 diagonal  are modeled  with  LinearSum  since the  value  of $c$  only
-depends on $n$ and is known to be $c = n(n^2 + 1)/2$.
+depends on  $n$ and  is known to  be $c  = n(n^2 +  1)/2$. We  run 100
+resolutions of \(15\times15\), \(20\times20\) and \(25\times25\) Magic
+Square grids.
+
 
 \paragraph{Killer Sudoku} Killer  Sudoku is the same as  Sudoku but in
 such a way that  the grid is paved with blocks  of cells, named cages,
@@ -1017,19 +1021,44 @@ integer, and the sum of numbers in their cells must be equals to their
 integer. A  killer Sudoku  instance starts with  an empty  grid, cages
 preventing from  trivial solutions. AllDifferent constraints  are used
 to model the  regular Sudoku rules of this puzzle  game, and LinearSum
-constraints are modeling cages.
+constraints   are  modeling   cages.   We  run   100  resolutions   of
+a \(9\times9\) Killer Sudoku grid.
 
-\paragraph{k-Vertex Cover}  k-Vertex Cover is the  decision version of
-the  graph problem  Vertex Cover:  given a  graph, one  must select  a
-subset of vertices such that all edges  in the graph have at least one
-vertex  from  this  subset  as   an  endpoint.   Vertex  Cover  is  an
-optimization problem where  the goal is to find the  minimal subset of
-vertices  with  this  property.  The k-Vertex  Cover  problem  is  the
-decision  version where  the goal  is  to check  if such  a subset  of
-cardinality at most k exists.  k-Vertex Cover can be modeled using the
-two constraints LinearLessThan for checking that we do not select more
-than k  vertices, and  LinearGreaterThan to make  sure that  all edges
-have at least one of their endpoints among selected vertices.
+\begin{figure}[h]
+	\centering
+	\begin{subfigure}[t]{0.3\linewidth}
+		\centering
+    \includegraphics[width=\linewidth]{./figs/sudoku}
+		\caption{Sudoku \(9\times9\)}\label{fig:sudoku} 
+	\end{subfigure}
+  \hfill
+	\begin{subfigure}[t]{0.3\linewidth}
+		\centering
+    \includegraphics[width=\linewidth]{./figs/magic_square}
+		\caption{Magic Square \(3\times3\)}\label{fig:magic_square} 
+	\end{subfigure}
+  \hfill
+	\begin{subfigure}[t]{0.3\linewidth}
+		\centering
+    \includegraphics[width=\linewidth]{./figs/killer_sudoku}
+		\caption{Killer Sudoku \(9\times9\)}\label{fig:killer_sudoku} 
+	\end{subfigure}
+  \caption{Our classic combinatorial problems as benchmarks.}
+  \label{fig:problems}
+\end{figure}
+
+% \paragraph{k-Vertex Cover}  k-Vertex Cover is the  decision version of
+% the  graph problem  Vertex Cover:  given a  graph, one  must select  a
+% subset of vertices such that all edges  in the graph have at least one
+% vertex  from  this  subset  as   an  endpoint.   Vertex  Cover  is  an
+% optimization problem where  the goal is to find the  minimal subset of
+% vertices  with  this  property.  The k-Vertex  Cover  problem  is  the
+% decision  version where  the goal  is  to check  if such  a subset  of
+% cardinality at most k exists.  k-Vertex Cover can be modeled using the
+% two constraints LinearLessThan for checking that we do not select more
+% than k  vertices, and  LinearGreaterThan to make  sure that  all edges
+% have at least one of their endpoints among selected vertices.
+% \flo{Taille d'instance}
 
 \subsection{Results}\label{subsec:results}
 
@@ -1058,6 +1087,7 @@ spaces from Experiment~2.  Learnings have been done  in parallel using
     \begin{minipage}{270pt}
       \caption{Training errors (100 runs)  of Experiment~1, over small and
         complete constraint assignment spaces.}\label{tab:training_complete}
+      \centering
       \begin{tabular}{@{}g|g|g|g|g@{}}
         \toprule
         \rowcolor{white}
@@ -1085,6 +1115,7 @@ spaces from Experiment~2.  Learnings have been done  in parallel using
     \begin{minipage}{270pt}
       \caption{Training errors (100 runs)  of Experiment~2, over large and
         incomplete constraint assignment spaces.}\label{tab:training_incomplete}
+      \centering
       \begin{tabular}{@{}g|g|g|g|g@{}}
         \toprule
         \rowcolor{white}
@@ -1117,10 +1148,11 @@ comparison.
 
 \begin{table}
   \begin{center}
-    \begin{minipage}{330pt}
+    \begin{minipage}{\linewidth}
       \caption{Test errors (100 runs) in high dimensions of error functions learned
         with Experiments~1 and~2.}\label{tab:test}
-      %\small
+      % \small
+      \centering
       \begin{tabular}{@{}c|g|g|g|g|g@{}}
         \toprule
         \rowcolor{white}
@@ -1222,6 +1254,120 @@ function should handle.
 We give  in appendix  the list  of the  most frequently  learned error
 function  for  each  constraint,  both over  complete  and  incomplete
 spaces.
+
+\subsubsection{Experiment 3}
+
+The goal of this experiment is  not to be state-of-the-art in terms of
+run-times for solving  Sudoku, Magic Square and Killer  Sudoku, but to
+compare the  average run-times  of the  same solver  on three  or four
+nearly  identical  models,  depending  on the  problem,  presented  in
+Section~\ref{subsubsec:xp3}.   For models  with  a hand-crafted  error
+function, we implemented the \emph{primal graph based violation error}
+of  AllDifferent from  Petit et  al.~\cite{Petit2001}.  This  function
+simply outputs  the number of  couples with identical values  within a
+given  assignment.  To  run  this experiment,  we  used the  framework
+\ghost~\cite{GHOST},  which includes  a constraint-based  local search
+algorithm able to handle both \csp and \efsp models.
+
+\begin{table}
+  \begin{center}
+    \begin{minipage}{\linewidth}
+      \caption{Run-times  in seconds  over 100  runs to  solve classic
+        problems with  4 different  representations of  constraints (3
+        for Magic Square).\\
+        Rows  in  gray   means  that  some  runs   hit  the  60-second
+        timeout.}\label{tab:sudoku}
+      % \small
+      \centering
+      \begin{tabular}{@{}l|c|r|r|r|r@{}}
+        \toprule
+        Problem & Error  Function & mean & median &  std dev & success (\%)\\
+        \midrule
+        \multirow{4}{*}{Sudoku \(9\times9\)} &
+                                               none (\csp)& \cellcolor{Gray}0.8 & \cellcolor{Gray}0.1 & \cellcolor{Gray}2.4 &\cellcolor{Gray}94\\
+                &fast-forward    & \(2e^{-2}\)  & \(2e^{-2}\)  & \(8e^{-3}\) &100\\
+                &hard-coded      & \(1e^{-2}\)  & \(1e^{-2}\)  & \(5e^{-3}\) &100\\
+                &hand-crafted    & \(1e^{-2}\)  & \(1e^{-2}\)  & \(5e^{-3}\) &100\\
+        \midrule
+        \multirow{4}{*}{Sudoku \(16\times16\)} &
+                                                 none (\csp)& \cellcolor{Gray}- & \cellcolor{Gray}- & \cellcolor{Gray}- &\cellcolor{Gray}0\\
+                &fast-forward    & 0.8  & 0.7  & 0.2 &100\\
+                &hard-coded      & 0.5 & 0.4 & 0.1 &100\\
+                &hand-crafted & 0.3 & 0.3 & 0.1 &100\\
+        \midrule
+        \multirow{4}{*}{Sudoku \(25\times25\)} &
+                                                 none (\csp)& \cellcolor{Gray}- & \cellcolor{Gray}- & \cellcolor{Gray}- &\cellcolor{Gray}0\\
+                &fast-forward    & \cellcolor{Gray}9.9  & \cellcolor{Gray}10  & \cellcolor{Gray}0.1 &\cellcolor{Gray}2\\
+                &hard-coded      & \cellcolor{Gray}9.6 & \cellcolor{Gray}10 & \cellcolor{Gray}0.7 &\cellcolor{Gray}25\\
+                &hand-crafted & \cellcolor{Gray}7.3 & \cellcolor{Gray}7.6 & \cellcolor{Gray}2.5 &\cellcolor{Gray}61\\
+        \midrule
+        \multirow{4}{*}{Magic Square \(15\times15\)} &
+                                                       none   (\csp)& 0.6 & 0.4 & 0.5 &100\\
+                &fast-forward    & 1.5  & 1  & 1.3 &100\\
+                &hard-coded      & 0.7 & 0.5 & 0.5 &100\\
+        \midrule
+        \multirow{4}{*}{Magic Square \(20\times20\)} &
+                                                       none (\csp)& 2.8 & 2.4 & 1.6 &100\\
+                &fast-forward    & \cellcolor{Gray}3.3  & \cellcolor{Gray}2.1  & \cellcolor{Gray}2.8 &\cellcolor{Gray}95\\
+                &hard-coded      & \cellcolor{Gray}2.8 & \cellcolor{Gray}2 & \cellcolor{Gray}2.5 &\cellcolor{Gray}96\\
+        \midrule
+        \multirow{4}{*}{Magic Square \(25\times25\)} &
+                                                       none (\csp)& \cellcolor{Gray}9.8 & \cellcolor{Gray}10 & \cellcolor{Gray}0.6 &\cellcolor{Gray}12\\
+                &fast-forward    & \cellcolor{Gray}8.3  & \cellcolor{Gray}10  & \cellcolor{Gray}2.4 &\cellcolor{Gray}37\\
+                &hard-coded      & \cellcolor{Gray}7.9 & \cellcolor{Gray}10 & \cellcolor{Gray}2.6 &\cellcolor{Gray}49\\
+        \midrule
+        \multirow{4}{*}{Killer Sudoku \(9\times9\)} &
+                                                      none (\csp)& \cellcolor{Gray}- & \cellcolor{Gray}- & \cellcolor{Gray}- &\cellcolor{Gray}0\\
+                &fast-forward    & 2  & 1.6  & 1.5 &100\\
+                &hard-coded      & 1.2 & 0.9 & 1.1 &100\\
+                &hand-crafted & 1.1 & 0.8 & 1 &100\\
+        % \midrule
+        % \multirow{4}{*}{Vertex Cover} &
+        %                                 none (\csp)& \cellcolor{Gray}- & \cellcolor{Gray}- & \cellcolor{Gray}- &\\
+        %        &fast-forward    & 825.61  & 774.36  & 271.09 &\\
+        %        &hard-coded      & 537.48 & 539.86 & 162.03 &\\
+        \botrule
+      \end{tabular}
+    \end{minipage}
+  \end{center}
+\end{table}
+
+Table~\ref{tab:sudoku} shows that models  with error functions clearly
+outperformed  the   model  with   the  constraint  represented   as  a
+predicate. Over 100  runs, no error function-based models  hit the 60s
+timeout, but 4 runs of the  regular constraint network model timed out
+on  the \(9\times9\)  grid,  and  all of  them  on the  \(16\times16\)
+grid. Moreover, the learned error function hard-coded in C++ is nearly
+as  efficient  as the  hand-crafted  one  (also  coded in  C++).   The
+difference of  runtimes between the learned  error function hard-coded
+and computed  through the  \icn gives  us an idea  of the  overhead of
+computing such a function through the \icn.
+
+%%%%%%%%%
+Table~\ref{tab:sudoku} shows that error functions are well exploited
+by the  solver.  We  run 100  solving of Sudoku  for each  model and
+compute the mean and median run-time in milliseconds, as well as the
+standard deviation, the shortest and the longest run-time: run-times
+from error  function-based models are significantly  better than the
+pure  \csp  model  ones.   We  can also  estimate  the  overload  of
+computing the error function through the interpretable compositional
+network (ran  in a  feed-forward fashion),  compare to  a hard-coded
+version of the same error function.  We recall that one advantage of
+our method  is to output  intelligible error functions,  letting the
+choice to users  to compute this function  through the Interpretable
+Compositional  Network or  to let  them the  possibility to  code it
+themselves.   Results  from  Table~\ref{tab:sudoku}  show  that  the
+overload is such that run-times  of error functions executed through
+the interpretable compositional network are slightly more than twice
+longer than run-times of their hard-coded version.
+
+More  importantly,  we  see  that the  most  frequently  learned  error
+function trying to  reproduce the Hamming cost  finds solutions almost
+as   quickly    as   the   carefully   hand-crafted    error   function
+from Petit et al.~\cite{Petit2001}. Thus, our method can be used to automatically
+find error  functions with an equivalent  efficiency than human-defined
+ones.
+
 
 
 % \section*{Declarations}
