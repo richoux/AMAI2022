@@ -919,11 +919,36 @@ complete constraint assignment space.  Then, we compute the test error
 of these  learned error  functions over a  sampled test  set.  Sampled
 test sets contain 10,000 solutions  and 10,000 non-solutions, with 100
 variables on domains of size 100, belonging to a constraint assignment
-space  of  size  \(100^{100}~=~10^{200}\), thus  greatly  larger  than
-training spaces containing 500\(\sim\)600
-assignments.  For some constraints, it was not possible to reach this
-constraint assignment  space size  for a test  set.  We  explain which
-constraints and why in Section~\ref{sec:results_xp1}. \flo{Ou alors maintenant.}
+space  of size  \(100^{100}~=~10^{200}\) (except  for NoOverlap1D  and
+Ordered, as explained below), thus greatly larger than training spaces
+containing 500\(\sim\)600 assignments.
+
+For  AllDifferent,  LinearSum, LinearLessThan,  LinearGreaterThan  and
+Minimum, it is easy to define by hand a function computing the Hamming
+and Manhattan  costs of any  assignment \(\vec x\)  without generating
+the  whole constraint  assignment  space.  For  these constraints,  we
+tested the corresponding  error function on spaces  with 100 variables
+and domains of size 100.
+
+Whereas for Ordered  and NoOverlap1D, since these  two constraints are
+intrinsically combinatorial,  finding a  function computing  the exact
+Hamming  and  Manhattan  costs  of  any  assignment  is  not  trivial.
+Therefore,  we sampled  10,000 solutions  and 10,000  non-solutions in
+constraint assignment spaces of Ordered  with 12 variables and domains
+of    size    18    (so   \(18^{12}\)    assignments,    \ie,    about
+\(1.15\times 10^{15}\)) and NoOverlap1D  with 10 variables and domains
+of size 35 (\(35^{10}  \simeq 2.75\times 10^{15}\) assignments).  Then
+we approximate the  Hamming and Manhattan costs  of each non-solution,
+considering the  closest solution among the  10,000 sampled solutions.
+It was not possible to build  test sets of higher dimensions for these
+two constraints  since sampling  10,000 solutions is  challenging: for
+Ordered, we  estimate the solution  rate to be  \(8.6\times 10^{-10}\)
+(to make  this number concrete,  after 100 billion samplings,  one can
+expend finding  86 solutions); for  NoOverlap1D, the solution  rate is
+about \(3.6\times 10^{-9}\).  On a regular  computer, it took us a bit
+more than 10 hours to generate  the test set of Ordered.  Knowing that
+such an  execution time grows  exponentially, generating test  sets of
+higher dimensions would take an unreasonable amount of time.
 
 We show  normalized mean training  and test errors: first,  we compute
 the mean  error among  all assignments composing  the training  or the
@@ -968,17 +993,17 @@ modeled   these  problems   and   solve  them   using  the   framework
 \ghost~\cite{GHOST}.
 
 We  consider  the  mean  and  median  run-time  to  compare  different
-representations of our constraints.  We have two baselines\flo{à revoir}: 1., a pure
-\csp model  where constraints are  predicates, and 2., an  \efsp model
-with an efficient hand-crafted error function for each constraint.  We
-compare those with  two models using error functions  learned with our
-system: a.,  our \efsp model  using the most frequently  learned error
-function from  the previous  experiments and  computed by  running the
-\icn graph in a fast-forward fashion, and b., our \efsp model with the
-same error  function but directly  hard-coded in C++.  The  solver and
-its parameters  remain the same:  the only  thing that is  modified in
-these   four    different   models   is   the    expression   of   the
-constraint.  Notice that for LinearSum, % LinearLessThan and
+representations of our  constraints.  We take as baseline  a pure \csp
+model where  constraints are  predicates.  We  also consider  an \efsp
+model with an efficient  hand-crafted error function for AllDifferent.
+We compare  those with two  models using error functions  learned with
+our  system: a.,  our \efsp  model using  the most  frequently learned
+error function from  the previous experiments and  computed by running
+the \icn graph in a fast-forward fashion, and b., our \efsp model with
+the same  error function but  directly hard-coded in C++.   The solver
+and its parameters remain the same: the only thing that is modified in
+these  four different  models  is the  expression  of the  constraint.
+Notice that for LinearSum, % LinearLessThan and
 % LinearGreaterThan
 our system  learned the canonical  and optimal error function,  so the
 hand-crafted and hard-coded versions are the same.
@@ -1438,7 +1463,10 @@ learning would allow finding error  functions that are more adapted to
 the chosen solver.
 
 
-% \section*{Declarations}
+\section*{Statements and Declarations}
+
+The authors have  no competing interests to declare  that are relevant
+to the content of this article.
 
 % Some journals require declarations to be submitted in a standardised format. Please check the Instructions for Authors of the journal to which you are submitting to see if you need to complete this section. If yes, your manuscript must contain the following sections under the heading `Declarations':
 
