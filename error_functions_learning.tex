@@ -1006,8 +1006,7 @@ grid with  all expected numbers and  ask the solver to  find a correct
 permutation.   The constraints  over the  rows, columns,  and the  two
 diagonal  are modeled  with  LinearSum  since the  value  of $c$  only
 depends on  $n$ and  is known to  be $c  = n(n^2 +  1)/2$. We  run 100
-resolutions of \(15\times15\), \(20\times20\) and \(25\times25\) Magic
-Square grids.
+resolutions of \(25\times25\) and \(30\times30\) Magic Square grids.
 
 
 \paragraph{Killer Sudoku} Killer  Sudoku is the same as  Sudoku but in
@@ -1287,43 +1286,38 @@ handle both \csp and \efsp models.
         Problem & Error  Function & mean & median &  std dev & success (\%)\\
         \midrule
         \multirow{4}{*}{Sudoku \(9\times9\)} &
-                                               none (\csp)& \cellcolor{Gray}4.2 & \cellcolor{Gray}0.1 & \cellcolor{Gray}13 &\cellcolor{Gray}95\\
-                &fast-forward    & \(5e^{-2}\)  & \(5e^{-2}\)  & \(1e^{-2}\) &100\\
-                &hard-coded      & \(2e^{-2}\)  & \(2e^{-2}\)  & \(1e^{-2}\) &100\\
-                &hand-crafted    & \(2e^{-2}\)  & \(2e^{-2}\)  & \(6e^{-3}\) &100\\
+                                               none (\csp)& \cellcolor{Gray}2.6 & \cellcolor{Gray}0.1 & \cellcolor{Gray}10.6 &\cellcolor{Gray}97\\
+                &fast-forward    & \(2e^{-2}\)  & \(2e^{-2}\)  & \(1e^{-2}\) &100\\
+                &hard-coded      & \(1e^{-2}\)  & \(1e^{-2}\)  & \(7e^{-3}\) &100\\
+                &hand-crafted    & \(1e^{-2}\)  & \(1e^{-2}\)  & \(5e^{-3}\) &100\\
         \midrule
         \multirow{4}{*}{Sudoku \(16\times16\)} &
-                                                 none (\csp)& \cellcolor{Gray}- & \cellcolor{Gray}- & \cellcolor{Gray}- &\cellcolor{Gray}0\\
-                &fast-forward    & 1.6  & 1.6  & 0.3 &100\\
-                &hard-coded      & 1.1 & 1.1 & 0.2 &100\\
-                &hand-crafted & 0.6 & 0.6 & 0.1 &100\\
+                                                 none (\csp)& \cellcolor{Gray}59.9 & \cellcolor{Gray}60.0 & \cellcolor{Gray}- &\cellcolor{Gray}1\\
+                &fast-forward    & 0.9  & 0.8  & 0.2 &100\\
+                &hard-coded      & 0.5 & 0.5 & 0.1 &100\\
+                &hand-crafted & 0.4 & 0.3 & 0.1 &100\\
         \midrule
         \multirow{4}{*}{Sudoku \(25\times25\)} &
                                                  none (\csp)& \cellcolor{Gray}- & \cellcolor{Gray}- & \cellcolor{Gray}- &\cellcolor{Gray}0\\
-                &fast-forward    & \cellcolor{Gray}40  & \cellcolor{Gray}39  & \cellcolor{Gray}13 &\cellcolor{Gray}83\\
-                &hard-coded      & \cellcolor{Gray}32 & \cellcolor{Gray}29 & \cellcolor{Gray}13 &\cellcolor{Gray}93\\
-                &hand-crafted & 13 & 12 & 7 &100\\
-        \midrule
-        \multirow{4}{*}{Magic Square \(15\times15\)} &
-                                                       none   (\csp)& 1.2 & 0.9 & 0.7 &100\\
-                &fast-forward    & 1.7  & 1.2  & 1.5 &100\\
-                &hard-coded      & 1.2 & 1.1 & 0.8 &100\\
-        \midrule
-        \multirow{4}{*}{Magic Square \(20\times20\)} &
-                                                       none (\csp)& 5.1 & 4.6 & 1.8 &100\\
-                &fast-forward    & 5.8 & 4.7 & 4.3 &100\\
-                &hard-coded      & 3.8 & 2.8 & 2.7 &100\\
+                &fast-forward    & \cellcolor{Gray}28.5  & \cellcolor{Gray}25.7  & \cellcolor{Gray}14.6 &\cellcolor{Gray}94\\
+                &hard-coded      & 17.3 & 14.0 & 10.3 &100\\
+                &hand-crafted & 9.4 & 7.6 & 5.7 &100\\
         \midrule
         \multirow{4}{*}{Magic Square \(25\times25\)} &
-                                                       none (\csp)& 19 & 17 & 6.9 &100\\
-                &fast-forward    & 12 & 10 & 9.7 &100\\
-                &hard-coded      & 8.6 & 7.1 & 5.8 &100\\
+                                                       none (\csp)& 10.4 & 8.5 & 5.5 &100\\
+                &fast-forward    & 9.7 & 6.1 & 9.8 &100\\
+                &hard-coded      & 6.8 & 5.1 & 5.5 &100\\
+        \midrule
+        \multirow{4}{*}{Magic Square \(30\times30\)} &
+                                                       none (\csp)& \cellcolor{Gray}29.9 & \cellcolor{Gray}27.3 & \cellcolor{Gray}11.4 &\cellcolor{Gray}96\\
+                &fast-forward    & \cellcolor{Gray}19.1 & \cellcolor{Gray}16.2 & \cellcolor{Gray}14.3 &\cellcolor{Gray}98\\
+                &hard-coded      & 14.9 & 11.7 & 11.5 &100\\
         \midrule
         \multirow{4}{*}{Killer Sudoku \(9\times9\)} &
                                                       none (\csp)& \cellcolor{Gray}- & \cellcolor{Gray}- & \cellcolor{Gray}- &\cellcolor{Gray}0\\
-                &fast-forward    & 3.9  & 3.3  & 2.6 &100\\
-                &hard-coded      & 2.6 & 2.3 & 1.5 &100\\
-                &hand-crafted & 1.6 & 1.6 & 0.8 &100\\
+                &fast-forward    & 2.4  & 1.6  & 2.2 &100\\
+                &hard-coded      & 1.5 & 1.1 & 1.1 &100\\
+                &hand-crafted & 1.1 & 0.8 & 0.9 &100\\
         % \midrule
         % \multirow{4}{*}{Vertex Cover} &
         %                                 none (\csp)& \cellcolor{Gray}- & \cellcolor{Gray}- & \cellcolor{Gray}- &\\
