@@ -40,6 +40,7 @@
 \usepackage{subcaption}
 \usepackage{xspace}
 \usepackage{color, colortbl}
+\usepackage{paralist}
 %%%% 
 
 %%%%%=============================================================================%%%%
@@ -343,12 +344,7 @@ than if  they were  modeled by  a \csp or  a \cop.   Or with  the same
 computation  budget,  a  solver  could solve  larger  \efsp  or  \efop
 problems. However,  we do  not obtain  this gain for  free: this  is a
 trade with modeling simplicity. Indeed, it  is not always easy to find
-good  error  functions to  describe  constraints.%    For instance,  the
-% function \(f(x,y) = |x-y|\) seems intuitive to describe the constraint
-% \(x=y\), but  is actually a  poor choice since all  invalid assignment
-% requires to change one variable only.  This would not fit Local Search
-% algorithms well.   Moreover, it is not  trivial how to define  it over
-% higher dimensions (for instance, for the constraint \(x=y=z\)).
+good  error  functions to  describe  constraints.
 
 This paper focuses on this  ``easy-to-use'' problem and proposes a way
 to  automatically  learn error  functions.   Users  provide the  usual
@@ -1101,7 +1097,7 @@ spaces from Experiment~2.  Learnings have been done  in parallel using
         LinearGreaterThan-3-8-12 & 0 \,~~~~~~(92)& 0 & 0.003 & 0.012 \\
         \rowcolor{white}
         Minimum-4-5-3 & 0 \,~~~~~~(82)& 0 & 0.005 & 0.016 \\
-        NoOverlap-3-8-2 & 0.007 ~(34)& 0.007 & 0.009 & 0.003\\
+        NoOverlap1D-3-8-2 & 0.007 ~(34)& 0.007 & 0.009 & 0.003\\
         \rowcolor{white}
         Ordered-4-5 & 0.009 ~(80)& 0.009 & 0.013 & 0.010\\
         \botrule
@@ -1129,7 +1125,7 @@ spaces from Experiment~2.  Learnings have been done  in parallel using
         LinearGreaterThan-12-12-42 & 0.027 ~~(46)& 0.034 & 0.032 & 0.004 \\
         \rowcolor{white}
         Minimum-12-12-6 & 0.019 ~~(24)& 0.021 & 0.022 & 0.004 \\
-        NoOverlap-8-32-3 & 0.030 ~~(19)& 0.030 & 0.029 & 0.002\\
+        NoOverlap1D-8-32-3 & 0.030 ~~(19)& 0.030 & 0.029 & 0.002\\
         \rowcolor{white}
         Ordered-12-12 & 0.019 ~~(99)& 0.019 & 0.019 & 0.001\\
         \botrule
@@ -1167,7 +1163,7 @@ comparison.
              &LinearGreaterThan-100-100-5279 & 0 & 0 & ~~0.003 & ~~~0.007 \\
         \rowcolor{white}
              &Minimum-100-100-30 & 0 & 0 & ~~0.026 & ~~~0.123 \\
-             &NoOverlap-10-35-3 & 0.062 & 0.062 & ~~0.060 & ~~~0.004\\
+             &NoOverlap1D-10-35-3 & 0.062 & 0.062 & ~~0.060 & ~~~0.004\\
         \rowcolor{white}
              &Ordered-12-18 & 0.035 & 0.035 & ~~0.045 & ~~~0.022\\
         \midrule
@@ -1180,7 +1176,7 @@ comparison.
              &LinearGreaterThan-100-100-5279 & 0.020 & 0.020 & ~~0.020 & ~~~\(1e^{-4}\) \\
         \rowcolor{white}
              &Minimum-100-100-30 & 0.200 & 0.200 & ~~0.208 & ~~~0.100 \\
-             &NoOverlap-10-35-3 & 0.050 & 0.041 & ~~0.041 & ~~~0.004\\
+             &NoOverlap1D-10-35-3 & 0.050 & 0.041 & ~~0.041 & ~~~0.004\\
         \rowcolor{white}
              &Ordered-12-18 & 0.037 & 0.037 & ~~0.045 & ~~~0.022\\
         \botrule
@@ -1248,8 +1244,11 @@ half  of Table~\ref{tab:test}  is because  their training  spaces from
 Experiment~1   were  too   small   for   these  highly   combinatorial
 constraints,   containing   too   few   different   combinations   and
 Hamming/Manhattan cost  patterns. In  other words, those  small spaces
-does  not contain  the  most trickier,  complex  assignments an  error
-function should handle.
+does not  contain very  diverse assignments, penalizing  the learning.
+This explains  why results  for NoOverlap1D  are better  over incomplete
+spaces than  complete spaces.  However,  we think that  the elementary
+operations composing  our \icn model  are not rich enough  to properly
+express the complexity of NoOverlap1D and Ordered.
 
 We give  in appendix  the list  of the  most frequently  learned error
 function  for  each  constraint,  both over  complete  and  incomplete
@@ -1362,6 +1361,87 @@ as quickly as the carefully  hand-crafted error function from Petit et
 al.~\cite{Petit2001}. Thus,  our method  can be used  to automatically
 find error functions with  an equivalent efficiency than human-defined
 ones.
+
+\section{Conclusion}\label{sec:conclusion}
+
+In  this  paper,  we  give  a  formal  definition  of  Error  Function
+Satisfaction and  Optimization Problems,  and we  present a  method to
+learn   error  functions   automatically   upon  a   model  based   on
+Interpretable  Compositional Networks,  a particluar  directed acyclic
+graph.  To  the best of  our knowledge, this  is the first  attempt to
+learn error functions for hard-constraints automatically.
+
+We  have  tested   our  system  over  7   different  constraints.   In
+Experiment~1 over small and complete training spaces, it finds the the
+exact Hamming or Manhattan costs for 5 of them.  Their error functions
+have  been  learned  over  constraint  assignment  space  composed  of
+500\(\sim\)600  assignments  and  perfectly  scale  on  high-dimension
+constraint instances with  \(10^{200}\) assignments.  In Experiment~2,
+we show the robustness of our  system by learning error functions over
+incomplete  constraint  assignment  space containing  20,000  randomly
+drawn assignments  from spaces  of about \(10^{12}\)  assignments.  It
+finds high-quality error functions for 4 out of 5 constraints that had
+a perfect error function in the previous Experiment~1.
+
+With the analysis of our results, we  conclude it is better to use our
+system   over  complete   spaces  for   simple  constraints   such  as
+AllDifferent, LinearSum  and Minimum.   For more  complex constraints,
+like  NoOverlap1D and  Ordered, experiments  show that  small training
+spaces  are  too restricted  and  do  not  contain enough  of  diverse
+assignments, and  the current  set of elementary  operations composing
+our \icn model is certainly not expressive enough.
+
+Results from Experiment~3 show that:
+\begin{inparaenum}[1.]
+\item at  least while  using a  constraint-based local  search solver,
+  there is a  real gain to model Constraint  Programming problems with
+  \efsp models rather than the classical \csp models.
+\item our system learns high-quality  error functions that can be used
+  in  practice  to  efficiently express  contraints  in  combinatorial
+  problems.
+\end{inparaenum}
+
+These two points  imply that our method allows users  to get the power
+of error function-based models for  free, leveraging the difficulty of
+their modeling: users can get an \efsp or an \efop model with the same
+modeling  effort  as   for  classical  \csp  and   \cop  models.  Like
+Freuder~\cite{Freuder2007} wrote:  ``\textit{This research  program is
+  not easy  because 'ease of  use' is  not a science}.''   However, we
+believe our  result is a step  toward the 'ease of  use' of Constraint
+Programming.
+
+One of the  most significant results in this paper  is that our system
+outputs interpretable  results.  Error functions output  by our system
+are intelligible. This allows our system to have two operating modes:
+\begin{inparaenum}[1.]
+  \item a  fully automatic system,  where error functions  are learned
+    and  called within  our  system, being  completely transparent  to
+    users  who  only need  to  furnish  a  concept function  for  each
+    constraint, in addition  to the regular sets of  variables V and
+    domains D, and
+  \item a  decision support system, where  users can look at  a set of
+    proposed error functions, pick up and modify the one they prefer.
+\end{inparaenum}   
+
+We made this system modular, allowing users with special needs can add
+or  remove operations  in  the  system to  learn  more specific  error
+functions.
+
+% The current  limitation of our  system is  that it struggles  to learn
+% high-quality error  function for  very combinatorial  constraints.  By
+% combining results from  Experiments~1 and~2, we can  conclude that: 1.
+% our system  is not  overfitting but need  more diverse  and expressive
+% operations   to  learn   a  high-quality   error  function   for  such
+% constraints,  and 2.  the Hamming  cost  is certainly  not the  better
+% choice to represent their assignment error.
+
+An extension of our work would  be to do reinforcement learning rather
+than  supervision learning  based on  the Hamming  or Manhattan  cost.
+Indeed, even  if these costs seem  natural metrics to tell  how far an
+assignment  is to  be  a solution  for  constraint-based local  search
+solvers, it could also be too restrictive.  Learning via reinforcement
+learning would allow finding error  functions that are more adapted to
+the chosen solver.
 
 
 % \section*{Declarations}
@@ -1549,7 +1629,7 @@ domain size and the value of the parameter, respectively.
     LinearLessThan: &\(Max( 0, \sum_{i=1}^n x[i] - p )\)\\
     LinearGreaterThan: &\(Max( 0, p - \sum_{i=1}^n x[i] )\)\\
     Minimum: &\(Count_{>0}\big(Max(0, p - x[i])\big)\)\\
-    NoOverlap: &\(Max\Big( 0, \sum_{i=1}^n\left(Count_{=}^{l}(\vec x) + Count_{<+p}(\vec x)\right) - n \Big)\)\\
+    NoOverlap1D: &\(Max\Big( 0, \sum_{i=1}^n\left(Count_{=}^{l}(\vec x) + Count_{<+p}(\vec x)\right) - n \Big)\)\\
     Ordered: &\(\sum_{i=1}^n\big(Max(0, x[i] - x[i+1] )\big)\)\\
   \end{array}
 \end{equation*}
@@ -1563,7 +1643,7 @@ domain size and the value of the parameter, respectively.
     LinearLessThan: &\(Max( 0, \sum_{i=1}^n x[i] - p )\)\\
     LinearGreaterThan: &\(Max\Big( 0,  p - \sum_{i=1}^n\big(id(\vec x) \times Max(0, x[i+1] - x[i] )\big) \Big)\)\\
     Minimum: &\(Max\Big( 0,  \sum_{i=1}^n\big(Count_{>+p}(\vec x) + Max(0, p - x[i] )\big) - p\Big)\)\\
-    NoOverlap: &\(Max\Big( 0, \sum_{i=1}^n\left(Count_{>=<+p}(\vec x) + Count_{<+p}(\vec x)\right) - p \Big)\)\\
+    NoOverlap1D: &\(Max\Big( 0, \sum_{i=1}^n\left(Count_{>=<+p}(\vec x) + Count_{<+p}(\vec x)\right) - p \Big)\)\\
     Ordered: &\(\sum_{i=1}^n\big(Count_{<}^{r}(\vec x)\big)\)\\
   \end{array}
 \end{equation*}
