@@ -293,13 +293,13 @@ between 0 and 6, allowing richer comparisons of variable assignments.
 	\centering
 	\begin{subfigure}[t]{0.49\linewidth}
 		\centering
-    \includegraphics[width=\linewidth]{./figs/csp_landscape_complex_zero_big}
+    \includegraphics[width=0.8\linewidth]{./figs/csp_landscape_complex_zero_big}
 		\caption{\csp landscape}\label{fig:csp_landscape} 
 	\end{subfigure}
   \hfill
 	\begin{subfigure}[t]{0.49\linewidth}
 		\centering
-    \includegraphics[width=\linewidth]{./figs/efsp_landscape_complex_zero_big}
+    \includegraphics[width=0.8\linewidth]{./figs/efsp_landscape_complex_zero_big}
 		\caption{\efsp landscape}\label{fig:efsp_landscape} 
 	\end{subfigure}
   \caption{Search landscapes of a small constraint network.}
@@ -557,7 +557,7 @@ Here is our method workflow in 4 points:
 
 \begin{figure}
   \centering
-  \includegraphics[width=\linewidth]{./figs/model_nn}
+  \includegraphics[width=0.8\linewidth]{./figs/model_nn}
   \caption{Our 4-layer network. Layers with blue vertices have mutually exclusive operations.}
   \label{fig:model}
 \end{figure}
@@ -1262,12 +1262,16 @@ run-times for solving  Sudoku, Magic Square and Killer  Sudoku, but to
 compare the  average run-times  of the  same solver  on three  or four
 nearly  identical  models,  depending  on the  problem,  presented  in
 Section~\ref{subsubsec:xp3}.   For models  with  a hand-crafted  error
-function, we implemented the \emph{primal graph based violation error}
-of  AllDifferent from  Petit et  al.~\cite{Petit2001}.  This  function
+function of AllDifferent, we  implemented the \emph{primal graph based
+  violation error} from Petit  et al.~\cite{Petit2001}.  This function
 simply outputs  the number of  couples with identical values  within a
-given  assignment.  To  run  this experiment,  we  used the  framework
-\ghost~\cite{GHOST},  which includes  a constraint-based  local search
-algorithm able to handle both \csp and \efsp models.
+given assignment.  For  LinearSum, we do not  know better hand-crafted
+error  functions than  the  one  learned the  most  frequently by  our
+system.
+
+To  run this  experiment, we  used the  framework \ghost~\cite{GHOST},
+which  includes  a constraint-based  local  search  algorithm able  to
+handle both \csp and \efsp models.
 
 \begin{table}
   \begin{center}
@@ -1276,7 +1280,7 @@ algorithm able to handle both \csp and \efsp models.
         problems with  4 different  representations of  constraints (3
         for Magic Square).\\
         Rows  in  gray   means  that  some  runs   hit  the  60-second
-        timeout.}\label{tab:sudoku}
+        timeout.}\label{tab:problems}
       % \small
       \centering
       \begin{tabular}{@{}l|c|r|r|r|r@{}}
@@ -1284,43 +1288,43 @@ algorithm able to handle both \csp and \efsp models.
         Problem & Error  Function & mean & median &  std dev & success (\%)\\
         \midrule
         \multirow{4}{*}{Sudoku \(9\times9\)} &
-                                               none (\csp)& \cellcolor{Gray}0.8 & \cellcolor{Gray}0.1 & \cellcolor{Gray}2.4 &\cellcolor{Gray}94\\
-                &fast-forward    & \(2e^{-2}\)  & \(2e^{-2}\)  & \(8e^{-3}\) &100\\
-                &hard-coded      & \(1e^{-2}\)  & \(1e^{-2}\)  & \(5e^{-3}\) &100\\
-                &hand-crafted    & \(1e^{-2}\)  & \(1e^{-2}\)  & \(5e^{-3}\) &100\\
+                                               none (\csp)& \cellcolor{Gray}4.2 & \cellcolor{Gray}0.1 & \cellcolor{Gray}13 &\cellcolor{Gray}95\\
+                &fast-forward    & \(5e^{-2}\)  & \(5e^{-2}\)  & \(1e^{-2}\) &100\\
+                &hard-coded      & \(2e^{-2}\)  & \(2e^{-2}\)  & \(1e^{-2}\) &100\\
+                &hand-crafted    & \(2e^{-2}\)  & \(2e^{-2}\)  & \(6e^{-3}\) &100\\
         \midrule
         \multirow{4}{*}{Sudoku \(16\times16\)} &
                                                  none (\csp)& \cellcolor{Gray}- & \cellcolor{Gray}- & \cellcolor{Gray}- &\cellcolor{Gray}0\\
-                &fast-forward    & 0.8  & 0.7  & 0.2 &100\\
-                &hard-coded      & 0.5 & 0.4 & 0.1 &100\\
-                &hand-crafted & 0.3 & 0.3 & 0.1 &100\\
+                &fast-forward    & 1.6  & 1.6  & 0.3 &100\\
+                &hard-coded      & 1.1 & 1.1 & 0.2 &100\\
+                &hand-crafted & 0.6 & 0.6 & 0.1 &100\\
         \midrule
         \multirow{4}{*}{Sudoku \(25\times25\)} &
                                                  none (\csp)& \cellcolor{Gray}- & \cellcolor{Gray}- & \cellcolor{Gray}- &\cellcolor{Gray}0\\
-                &fast-forward    & \cellcolor{Gray}9.9  & \cellcolor{Gray}10  & \cellcolor{Gray}0.1 &\cellcolor{Gray}2\\
-                &hard-coded      & \cellcolor{Gray}9.6 & \cellcolor{Gray}10 & \cellcolor{Gray}0.7 &\cellcolor{Gray}25\\
-                &hand-crafted & \cellcolor{Gray}7.3 & \cellcolor{Gray}7.6 & \cellcolor{Gray}2.5 &\cellcolor{Gray}61\\
+                &fast-forward    & \cellcolor{Gray}40  & \cellcolor{Gray}39  & \cellcolor{Gray}13 &\cellcolor{Gray}83\\
+                &hard-coded      & \cellcolor{Gray}32 & \cellcolor{Gray}29 & \cellcolor{Gray}13 &\cellcolor{Gray}93\\
+                &hand-crafted & 13 & 12 & 7 &100\\
         \midrule
         \multirow{4}{*}{Magic Square \(15\times15\)} &
-                                                       none   (\csp)& 0.6 & 0.4 & 0.5 &100\\
-                &fast-forward    & 1.5  & 1  & 1.3 &100\\
-                &hard-coded      & 0.7 & 0.5 & 0.5 &100\\
+                                                       none   (\csp)& 1.2 & 0.9 & 0.7 &100\\
+                &fast-forward    & 1.7  & 1.2  & 1.5 &100\\
+                &hard-coded      & 1.2 & 1.1 & 0.8 &100\\
         \midrule
         \multirow{4}{*}{Magic Square \(20\times20\)} &
-                                                       none (\csp)& 2.8 & 2.4 & 1.6 &100\\
-                &fast-forward    & \cellcolor{Gray}3.3  & \cellcolor{Gray}2.1  & \cellcolor{Gray}2.8 &\cellcolor{Gray}95\\
-                &hard-coded      & \cellcolor{Gray}2.8 & \cellcolor{Gray}2 & \cellcolor{Gray}2.5 &\cellcolor{Gray}96\\
+                                                       none (\csp)& 5.1 & 4.6 & 1.8 &100\\
+                &fast-forward    & 5.8 & 4.7 & 4.3 &100\\
+                &hard-coded      & 3.8 & 2.8 & 2.7 &100\\
         \midrule
         \multirow{4}{*}{Magic Square \(25\times25\)} &
-                                                       none (\csp)& \cellcolor{Gray}9.8 & \cellcolor{Gray}10 & \cellcolor{Gray}0.6 &\cellcolor{Gray}12\\
-                &fast-forward    & \cellcolor{Gray}8.3  & \cellcolor{Gray}10  & \cellcolor{Gray}2.4 &\cellcolor{Gray}37\\
-                &hard-coded      & \cellcolor{Gray}7.9 & \cellcolor{Gray}10 & \cellcolor{Gray}2.6 &\cellcolor{Gray}49\\
+                                                       none (\csp)& 19 & 17 & 6.9 &100\\
+                &fast-forward    & 12 & 10 & 9.7 &100\\
+                &hard-coded      & 8.6 & 7.1 & 5.8 &100\\
         \midrule
         \multirow{4}{*}{Killer Sudoku \(9\times9\)} &
                                                       none (\csp)& \cellcolor{Gray}- & \cellcolor{Gray}- & \cellcolor{Gray}- &\cellcolor{Gray}0\\
-                &fast-forward    & 2  & 1.6  & 1.5 &100\\
-                &hard-coded      & 1.2 & 0.9 & 1.1 &100\\
-                &hand-crafted & 1.1 & 0.8 & 1 &100\\
+                &fast-forward    & 3.9  & 3.3  & 2.6 &100\\
+                &hard-coded      & 2.6 & 2.3 & 1.5 &100\\
+                &hand-crafted & 1.6 & 1.6 & 0.8 &100\\
         % \midrule
         % \multirow{4}{*}{Vertex Cover} &
         %                                 none (\csp)& \cellcolor{Gray}- & \cellcolor{Gray}- & \cellcolor{Gray}- &\\
@@ -1332,42 +1336,32 @@ algorithm able to handle both \csp and \efsp models.
   \end{center}
 \end{table}
 
-Table~\ref{tab:sudoku} shows that models  with error functions clearly
-outperformed  the   model  with   the  constraint  represented   as  a
-predicate. Over 100  runs, no error function-based models  hit the 60s
-timeout, but 4 runs of the  regular constraint network model timed out
-on  the \(9\times9\)  grid,  and  all of  them  on the  \(16\times16\)
-grid. Moreover, the learned error function hard-coded in C++ is nearly
-as  efficient  as the  hand-crafted  one  (also  coded in  C++).   The
-difference of  runtimes between the learned  error function hard-coded
-and computed  through the  \icn gives  us an idea  of the  overhead of
-computing such a function through the \icn.
+Table~\ref{tab:problems} shows that  \efsp models clearly outperformed
+their  equivalent   \csp  model,  except  for   smaller  Magic  Square
+instances. We run 100 solving  of different problem instances for each
+model and compute the mean and  median run-time in seconds, as well as
+the standard deviation  and the success rate, \ie, the  number of runs
+out  of 100  that found  a solution  within 60  seconds. Rows  in gray
+indicates that the success rate is below 100\%.
 
-%%%%%%%%%
-Table~\ref{tab:sudoku} shows that error functions are well exploited
-by the  solver.  We  run 100  solving of Sudoku  for each  model and
-compute the mean and median run-time in milliseconds, as well as the
-standard deviation, the shortest and the longest run-time: run-times
-from error  function-based models are significantly  better than the
-pure  \csp  model  ones.   We  can also  estimate  the  overload  of
-computing the error function through the interpretable compositional
-network (ran  in a  feed-forward fashion),  compare to  a hard-coded
-version of the same error function.  We recall that one advantage of
-our method  is to output  intelligible error functions,  letting the
-choice to users  to compute this function  through the Interpretable
-Compositional  Network or  to let  them the  possibility to  code it
-themselves.   Results  from  Table~\ref{tab:sudoku}  show  that  the
-overload is such that run-times  of error functions executed through
-the interpretable compositional network are slightly more than twice
-longer than run-times of their hard-coded version.
+We can estimate  the overload of computing the  error function through
+the  interpretable  compositional  network   (ran  in  a  feed-forward
+fashion), compare to a hard-coded  version of the same error function.
+We recall that  one advantage of our method is  to output intelligible
+error functions, letting the choice  to users to compute this function
+through the  Interpretable Compositional  Network or  to let  them the
+possibility     to    code     it     themselves.     Results     from
+Table~\ref{tab:problems} show that the overload is such that run-times
+of error  functions executed  through the  interpretable compositional
+network are  slightly more than  twice longer than run-times  of their
+hard-coded version.
 
-More  importantly,  we  see  that the  most  frequently  learned  error
-function trying to  reproduce the Hamming cost  finds solutions almost
-as   quickly    as   the   carefully   hand-crafted    error   function
-from Petit et al.~\cite{Petit2001}. Thus, our method can be used to automatically
-find error  functions with an equivalent  efficiency than human-defined
+More  importantly,  we see  that  the  most frequently  learned  error
+function by our system, once hard-coded in C++, finds solutions almost
+as quickly as the carefully  hand-crafted error function from Petit et
+al.~\cite{Petit2001}. Thus,  our method  can be used  to automatically
+find error functions with  an equivalent efficiency than human-defined
 ones.
-
 
 
 % \section*{Declarations}
