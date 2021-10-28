@@ -471,11 +471,11 @@ assignment space, in case their exact formulas are unknown.
 Our  method learns  error  functions as  a  non-linear combination  of
 elementary   operations    and   lies    on   a   model    we   called
 \textbf{Interpretable  Compositional Network}  (\icn).  An  \icn is  a
-directed acyclic graph  composed of $k$ independent  sets organised in
-such  a  way that  vertices  of  an  independent set  are  exclusively
-connected  to  all  vertices  of  a  unique  independent  set  in  the
-graph. Thus, if we abstract each  independent set by a vertex, then we
-obtain a directed linear graph.
+directed acyclic  multipartite graph composed of  $k$ independent sets
+organised  in such  a  way that  vertices of  an  independent set  are
+exclusively connected to  all vertices of a unique  independent set in
+the graph. Thus, if we abstract each independent set by a vertex, then
+we obtain a directed line.
 
 \(\icn\)s are  networks in the  graph theory  way, \ie, a  graph where
 vertices or arcs  have attributes.  In an \icn,  vertices are actually
@@ -682,20 +682,26 @@ to  error  functions  and  drastically reduces  the  search  space  of
 mathematical representations.  More importantly, it enforces the input
 size independence property.
 
-Learning an  error function via  an \icn corresponds to  selecting the
-right vertices  in such a way  that it both satisfies  some conditions
-and minimizes the difference with the Hamming or Manhattan cost on the
-constraint  assignment  space  used  as a  training  set.   Therefore,
-learning  an   error  function   is  simultaneously   a  combinatorial
-optimization  problem itself,  and a  regression problem  that can  be
-tackled      by     supervised      learning,     as      shown     in
+In  our a  first  work,  we used  genetic  algorithms  to learn  error
+functions  via \(\icn\)s~\cite{richoux2021gecco}.  In  this paper,  we
+present  a more  efficient  and  elegant way  to  learn  them: we  can
+actually model the problem of  learning error functions of \efsp/\efop
+models as an \efop.
+
+Indeed,  learning  an  error  function  via  an  \icn  corresponds  to
+selecting the right vertices in such a way that it both satisfies some
+conditions and minimizes the difference  with the Hamming or Manhattan
+cost  on the  constraint  assignment  space used  as  a training  set.
+Therefore,   learning   an   error  function   is   simultaneously   a
+combinatorial optimization  problem itself,  and a  regression problem
+that   can  be   tackled   by  supervised   learning,   as  shown   in
 Section~\ref{subsec:main_result}.
 
-This combinatorial optimization problem can  actually be modeled as an
-\efop. We propose the following model:%
+This  combinatorial  optimization  problem   can  be  modeled  by  the
+following \efop model:%
 \efopmodel%
 {One variable for each vertex in the \icn.}%
-{Boolean  domain  \(\{0,1\}\)  for each  variable,  representing  their
+{Boolean  domain \(\{0,1\}\)  for  each  variable, representing  their
   selection.}%
 {Mutual exclusion,  No empty layer, Parameter-specific  operations. We
   explain these contraints below.}%
@@ -733,6 +739,8 @@ framework \ghost~\cite{GHOST}.   Notice that besides our  training and
 tests sets,  we do not have  validation sets simply because  we do not
 performed any parameter tweaking: we use the solver of \ghost with its
 default parameter values for all experiments in this paper.
+
+
 
 \section{Attempts and failures}\label{sec:failures}
 
