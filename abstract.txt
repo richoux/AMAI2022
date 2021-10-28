@@ -10,13 +10,14 @@ functions that  are not  always easy  to define.   Here, we  propose a
 method to  automatically learn  an error  function corresponding  to a
 constraint, given its predicate version only.  This is, to the best of
 our  knowledge,  the  first   attempt  to  automatically  learn  error
-functions  for  hard constraints.   Our  method  aims to  learn  error
-functions  in a  supervised fashion,  trying to  reproduce either  the
-Hamming  or the  Manhattan  distance,  by using  a  variant of  neural
-networks we named Interpretable  Compositional Networks.  This variant
-allows us to get interpretable results, unlike with regular artificial
-neural networks.   We run  experiments on  7 different  constraints to
-show  its versatility.   Experiments show  that our  system can  learn
+functions for  hard constraints. In this  paper, we also give  for the
+first time  a formal  definition of  combinatorial problems  with hard
+constraints represented by error functions.   Our method aims to learn
+error functions  in a supervised  fashion, trying to  reproduce either
+the Hamming or the Manhattan distance, by using a graph model we named
+Interpretable  Compositional Networks.   This model  allows us  to get
+interpretable results.  We run  experiments on 7 different constraints
+to show its  versatility.  Experiments show that our  system can learn
 functions that  scale to  high dimensions, and  can learn  fairly good
 functions over  incomplete spaces.   We also  show that  learned error
 functions  can  be  used   efficiently  to  represent  constraints  in

@@ -153,16 +153,18 @@
   automatically learn an error function corresponding to a constraint,
   given  its predicate  version only.   This is,  to the  best of  our
   knowledge, the first attempt  to automatically learn error functions
-  for hard constraints.  Our method aims to learn error functions in a
-  supervised fashion,  trying to reproduce  either the Hamming  or the
-  Manhattan distance,  by using a  graph model we  named Interpretable
-  Compositional Networks.   This model allows us  to get interpretable
-  results.  We run experiments on  7 different constraints to show its
-  versatility.  Experiments  show that our system  can learn functions
-  that scale to  high dimensions, and can learn  fairly good functions
-  over incomplete spaces.   We also show that  learned error functions
-  can  be  used  efficiently  to represent  constraints  in  different
-  classic problems.}
+  for hard constraints. In this paper, we also give for the first time
+  a formal definition of  combinatorial problems with hard constraints
+  represented  by error  functions.  Our  method aims  to learn  error
+  functions in  a supervised fashion,  trying to reproduce  either the
+  Hamming or the  Manhattan distance, by using a graph  model we named
+  Interpretable Compositional  Networks.  This model allows  us to get
+  interpretable   results.   We   run  experiments   on  7   different
+  constraints  to show  its  versatility.  Experiments  show that  our
+  system can  learn functions that  scale to high dimensions,  and can
+  learn fairly  good functions over  incomplete spaces.  We  also show
+  that learned  error functions can  be used efficiently  to represent
+  constraints in different classic problems.}
 
 \keywords{Combinatorial Satisfaction, Combinatorial Optimization, Constraint Programming, Problem Modeling, Error Function, Interpretable Learning}
 
@@ -287,7 +289,7 @@ can see that  the \csp landscape is mostly composed  of large plateaus
 with an error  measure (the number of violated  constraints) between 0
 and 2.   On the other  hand, the \efsp  landscape is more  convex with
 slopes  toward the  solution, with  a broader  scope of  error values,
-between 0 and 6, allowing richer comparisons of variable assignments.
+between 0 and 6, allowing  richer comparisons of variable assignments.
 
 \begin{figure}[h]
 	\centering
@@ -338,12 +340,13 @@ constraint \(c\).  We can now define the \efsp and \efop problems.
   \(\forall f_c \in F,\ f_c(\vec x_c)=0\) holds.}%
 
 Thanks to their constraint structure,  problems modeled by an \efsp or
-an \efop can be solved by constraint-based local search solvers faster
-than if  they were  modeled by  a \csp or  a \cop.   Or with  the same
-computation  budget,  a  solver  could solve  larger  \efsp  or  \efop
-problems. However,  we do  not obtain  this gain for  free: this  is a
-trade with modeling simplicity. Indeed, it  is not always easy to find
-good  error  functions to  describe  constraints.
+an  \efop can  be solved  by  some solvers  faster than  if they  were
+modeled by a  \csp or a \cop,  as shown by results  of Experiment~3 in
+Section~\ref{subsubsec:results_xp3}.  Another way to consider it: with
+the  same computation  budget, a  solver could  solve larger  \efsp or
+\efop problems. However, we do not  obtain this gain for free: this is
+a trade  with modeling simplicity.  Indeed,  it is not always  easy to
+find good error functions to describe constraints.
 
 This paper focuses on this  ``easy-to-use'' problem and proposes a way
 to  automatically  learn error  functions.   Users  provide the  usual
@@ -432,7 +435,7 @@ otherwise. Concepts  are the  predicate representation  of constraints
 referred at the beginning of Section~\ref{sec:efsp}.
 
 Our method learns  error functions in a  supervised fashion, searching
-for  a  function  computing  either the  \emph{Hamming  cost}  of  the
+for  a  function  computing  either the  \emph{Hamming  cost}  or  the
 \emph{Manhattan cost} of each assignment. The \textbf{Hamming cost} of
 an  assignment  \(\vec x\)  is  the  minimum  number of  variables  in
 \(\vec x\)  to reassign  to get a  \textbf{solution}, \ie,  a variable
@@ -573,9 +576,8 @@ Such transformation  operations are  for instance the  maximum between
 the  \(i\)-th and  \(i+1\)-th elements  of  the input  vector, or  the
 number of  \(j\)-th elements of  the vector smaller than  the \(i\)-th
 element such  that \(j >  i\) holds.  This  layer is composed  of both
-linear and non-linear  operations.  If an operation  is selected (\ie,
-it has an outgoing  weight equals to 1), it outputs  a vector of \(n\)
-integers.
+linear and  non-linear operations.   If an  operation is  selected, it
+outputs a vector of \(n\) integers.
 
 \begin{example}
   Consider one of our  18 transformation operations: ``\emph{Number of
@@ -646,17 +648,16 @@ layer can be selected to compose the error function. This allows us to
 have  a very  comprehensible combination  of elementary  operations to
 model  an error  function, making  it readable  and intelligible  by a
 human being.  For instance, the  most frequenly learned error function
-is
-\(Count_{>0}\big(\#\{j\ \mid\ x[j]=x[i] \text{ and } j>i\}\big)\)
-for AllDifferent, and \(\mid \big(\sum^{n}_{i=1} x[i]\big) - p\mid\)
-for  LinearSum,  with  \(p\)  the  right hand  side  constant  of  the
-equation. Thus, once the model of  an error function is learned, users
-have  the choice  to  run the  network in  a  feed-forward fashion  to
-compute  the error  function,  or  to re-implement  it  directly in  a
-programming  language.   Users  can  use  our  system  to  find  error
-functions  automatically, but  they  can  also use  it  as a  decision
-support system to find promising  error functions that they may modify
-and adapt by hand.
+for                           AllDifferent                          is
+\(Count_{>0}\big(\#\{j\ \mid\ x[j]=x[i] \text{ and } j>i\}\big)\), and
+\(\mid  \big(\sum^{n}_{i=1} x[i]\big)  - p\mid\)  for LinearSum,  with
+\(p\) the  right hand side  constant of  the equation. Thus,  once the
+model of  an error function is  learned, users have the  choice to run
+the network in  a feed-forward fashion to compute  the error function,
+or to re-implement  it directly in a programming  language.  Users can
+use our  system to  find error functions  automatically, but  they can
+also  use it  as a  decision support  system to  find promising  error
+functions that they may modify and adapt by hand.
 
 \subsection{Learning \efsp/\efop models through an \efop model}\label{subsec:learning}
 
@@ -664,22 +665,22 @@ As written in the introduction of Section~\ref{sec:method_design}, our
 error function  learning problem is  a symbolic regression  problem, a
 family of problems usually tackled through Genetic Programming.
 
-The issue with  learning error functions using  Genetic Programming is
-that,  in addition  of  having  a huge  search  space of  mathematical
-representations, we cannot guaranty  learning error functions that are
-independent from the input size, \ie,  from the number of variables in
-the scope of the target constraint. This property is mandatory to have
-a unique function  able to compute the error of  a given constraint on
-3, 30 or 300 variables.  This property also allows us to quickly learn
-error functions over small constraint scopes  in order to use them for
-computing the error of their constraints over large scopes.
+The issue  with Genetic Programming is  that, in addition of  having a
+huge search space of  mathematical representations, we cannot guaranty
+learning error  functions that  are independent  from the  input size,
+\ie,  from  the  number  of  variables in  the  scope  of  the  target
+constraint. This property is mandatory  to have a unique function able
+to compute the error of a given  constraint on 3, 30 or 300 variables.
+This property  also allows  us to quickly  learn error  functions over
+small constraint scopes  in order to use them for  computing the error
+of their constraints over large scopes.
 
 What we  do in this work  is actually solving a  \emph{biased symbolic
   regression problem}, where  the bias is induced by  the structure of
-the  \icn we  provide.  The  architecture of  an \icn  to learn  error
-functions forces their shape and  drastically reduces the search space
-of mathematical  representations.  More  importantly, it  enforces the
-input size independence property.
+the \icn we provide.  The architecture of an \icn gives a common shape
+to  error  functions  and  drastically reduces  the  search  space  of
+mathematical representations.  More importantly, it enforces the input
+size independence property.
 
 Learning an  error function via  an \icn corresponds to  selecting the
 right vertices  in such a way  that it both satisfies  some conditions
@@ -696,7 +697,8 @@ This combinatorial optimization problem can  actually be modeled as an
 {One variable for each vertex in the \icn.}%
 {Boolean  domain  \(\{0,1\}\)  for each  variable,  representing  their
   selection.}%
-{Mutual exclusion, No empty layer, Parameter-specific operations.}%
+{Mutual exclusion,  No empty layer, Parameter-specific  operations. We
+  explain these contraints below.}%
 {Loss function given by Equation~\ref{eq:loss}.}%
 
 The ``Mutual exclusion''  constraint is applied on the  three last layers,
@@ -715,8 +717,8 @@ Some  elementary operations  within our  \icn involve  the value  of a
 parameter \(p\)  in their  computation. Indeed, some  constraints need
 some parameters  to be defined, such  as the linear equation  with the
 constant   at   the   right   hand  side   of   the   equation.    The
-``Parameter-specific operations'' constraint  enforces that elementary
-operations can be part of the  operation combination if and only if we
+``Parameter-specific   operations''  constraint   enforces  elementary
+operations to be  part of the operation combination if  and only if we
 are dealing with  a constraint involving one or  some parameters. This
 constraint is easily  expressed as follows: considering  that \(m\) is
 the number  of selected  parameter-specific elementary  operations, if
@@ -727,7 +729,10 @@ regarding if the target constraint  contains at least one parameter or
 not.
 
 Modeling  and  solving  this  \efop  model has  been  done  using  the
-framework \ghost~\cite{GHOST}.
+framework \ghost~\cite{GHOST}.   Notice that besides our  training and
+tests sets,  we do not have  validation sets simply because  we do not
+performed any parameter tweaking: we use the solver of \ghost with its
+default parameter values for all experiments in this paper.
 
 \section{Attempts and failures}\label{sec:failures}
 
@@ -757,10 +762,7 @@ in  a small  dimensional  space, it  was unclear  how  to extend  this
 function to higher dimensions.
 
 We tried two approaches to learn $a_i, b_i$ coefficients: multivariate
-interpolation  and genetic  algorithms.  But  these approaches  failed
-mainly because of  the same reason: expressing error  functions with a
-sum of $p$ sinusoids led to either functions far from being satisfying
-($p < 40$) or with too many coefficients to learn ($p \geq 40$).
+interpolation  and genetic  algorithms. 
 
 \paragraph{Interpolation}   We  tried   different   tools  for   doing
 multivariate    interpolation    such    as    \textsc{chebpol}    and
@@ -807,16 +809,21 @@ $f(\vec{x})  \neq  0$).   Thus,  the algorithm  was  supposed  to  try
 learning   smooth  functions   that  severely   penalize  non-solution
 assignments.
 
+These   two  approaches,   multivariate   interpolation  and   genetic
+algorithms, failed mainly because of the same reason: expressing error
+functions with a sum of $p$ sinusoids led to either functions far from
+being satisfying  ($p < 40$)  or with  too many coefficients  to learn
+($p \geq 40$).
 
 \subsection{\cppn}
 
 Before  expressing  error  functions   with  \(\icn\)s,  we  tried  to
 represent  them   with  a  Compositional   Pattern-Producting  Network
-(\cppn)~\cite{CPPN}, a variant of neural networks from which \(\icn\)s
-are inspired  from.  Our  \cppn architecture  was a  two-layer network
-composed of units with an  activation function among the identity, the
-absolute value, the  sine function, the hyperbolic  tangent, the cubic
-hyperbolic tangent, a sigmoid function, and a Gaussian function.
+(\cppn)~\cite{CPPN}, a variant of  neural networks from which \(\icn\)
+is inspired.  Our \cppn architecture  was a two-layer network composed
+of units with an activation  function among the identity, the absolute
+value, the sine function, the hyperbolic tangent, the cubic hyperbolic
+tangent, a sigmoid function, and a Gaussian function.
 
 \paragraph{\efop} We  first tried  to tackle  the problem  of learning
 error  functions represented  by a  \cppn as  an optimization  problem
@@ -935,16 +942,16 @@ Hamming  and  Manhattan  costs  of  any  assignment  is  not  trivial.
 Therefore,  we sampled  10,000 solutions  and 10,000  non-solutions in
 constraint assignment spaces of Ordered  with 12 variables and domains
 of    size    18    (so   \(18^{12}\)    assignments,    \ie,    about
-\(1.15\times 10^{15}\)) and NoOverlap1D  with 10 variables and domains
-of size 35 (\(35^{10}  \simeq 2.75\times 10^{15}\) assignments).  Then
+\(1.15e^{15}\)) and NoOverlap1D  with 10 variables and domains
+of size 35 (\(35^{10}  \simeq 2.75e^{15}\) assignments).  Then
 we approximate the  Hamming and Manhattan costs  of each non-solution,
 considering the  closest solution among the  10,000 sampled solutions.
 It was not possible to build  test sets of higher dimensions for these
 two constraints  since sampling  10,000 solutions is  challenging: for
-Ordered, we  estimate the solution  rate to be  \(8.6\times 10^{-10}\)
+Ordered, we  estimate the solution  rate to be  \(8.6e^{-10}\)
 (to make  this number concrete,  after 100 billion samplings,  one can
 expend finding  86 solutions); for  NoOverlap1D, the solution  rate is
-about \(3.6\times 10^{-9}\).  On a regular  computer, it took us a bit
+about \(3.6e^{-9}\).  On a regular  computer, it took us a bit
 more than 10 hours to generate  the test set of Ordered.  Knowing that
 such an  execution time grows  exponentially, generating test  sets of
 higher dimensions would take an unreasonable amount of time.
@@ -962,7 +969,7 @@ Concidering  normalized errors  is important:  for instance,  having a
 Hamming-like mean error of 5 on  assignments with 10 variables and 100
 variables  is significantly  different:  looking  at their  normalized
 error allows to realized that the first one implies a mean error every
-2 variables, the second a mean error one in 20 variables.
+2 variables, the second a mean error every 20 variables.
 
 \subsubsection{Experiment 2: learning over incomplete spaces}\label{subsubsec:xp2}
 
@@ -974,15 +981,15 @@ and Manhattan costs of their assignments is unknown.
 In this experiment,  we built pre-sampled training  spaces by sampling
 10,000  solutions   and  10,000  non-solutions  on   large  constraint
 assignment  spaces of  size between  \(10^{12}\) and  \(10^{13}\), and
-with  solution  rates from  \(0.15\)\%  to  \(2.10^{-7}\)\%. Then,  we
+with  solution  rates  from  \(0.15\)\%  to  \(2e^{-7}\)\%.  Then,  we
 approximate the  Hamming and Manhattan  costs of each  non-solution by
 computing  their  Hamming and  Manhattan  distances  with the  closest
-solution among  the 10,000  ones, and learn  error functions  on these
-20,000 assignments  and their  estimated Hamming and  Manhattan costs.
-Like for  Experiment~1, we run  100 error functions learning  of these
-pre-sampled incomplete  spaces, so  that each  learning relies  on the
-same training set.   Finally, we evaluate the  learned error functions
-over the same test sets than Experiment~1.
+solution among the 10,000 ones,  learn error functions on these 20,000
+assignments and their estimated Hamming and Manhattan costs.  Like for
+Experiment~1, we run 100 error functions learning of these pre-sampled
+incomplete spaces, so  that each learning relies on  the same training
+set.  Finally, we  evaluate the learned error functions  over the same
+test sets than Experiment~1.
 
 \subsubsection{Experiment 3: learned error functions to solve problems}\label{subsubsec:xp3}
 
@@ -1000,7 +1007,7 @@ our  system: a.,  our \efsp  model using  the most  frequently learned
 error function from  the previous experiments and  computed by running
 the \icn graph in a fast-forward fashion, and b., our \efsp model with
 the same  error function but  directly hard-coded in C++.   The solver
-and its parameters remain the same: the only thing that is modified in
+and its  parameters remain the  same: the  only thing that  changes in
 these  four different  models  is the  expression  of the  constraint.
 Notice that for LinearSum, % LinearLessThan and
 % LinearGreaterThan
@@ -1220,12 +1227,12 @@ Observe that LinearLessThan has a  surprizingly high mean and standard
 deviation. This  is due to  an error  function that show  an excellent
 score on the training set but a very poor score on the test sets.  Our
 system was  overfitting this  training set twice  within 100  runs. In
-practice, this problem  could be alleviate by letting  more than 200ms
+practice, this problem could be  alleviated by letting more than 200ms
 to the solver to find an optimal solution, by taking a slightly larger
 training set or eventually by running a second time the error function
 learning, if  the user realises  that it  performs poorly on  the test
 set. Since the  learning is done very quickly (as  well as testing the
-error function), this is not a major issue for the actual usage of our
+error function), this is  not a major issue for the  real usage of our
 system.
 
 Althought not perfect,  results are good for  NoOverlap1D and Ordered,
@@ -1234,26 +1241,28 @@ among our seven ones. Our system is able to learn error functions with
 a low test errors and a  low standard deviation of performance between
 the different learned functions.  However, since their training errors
 are significantly lower  than their test errors, one  could think that
-our system  is overfitting  on thses training  sets, but  results from
-Experiment~2 lead us to another conclusion.
+our system is overfitting here.   Results from Experiment~2 lead us to
+another conclusion.
 
 First, let's  analyse the results  of our five first  constraints over
 large, incomplete  training sets. It  is important to stress  that the
 real Hamming  and Manhattan costs  in these training sets  are unknown
-and  roughtly   approximated  on  purpose.    Nevertheless,  Comparing
+and  roughtly   approximated  on  purpose.    Nevertheless,  comparing
 Table~\ref{tab:training_incomplete}   with   the    second   half   of
-Table~\ref{tab:test}  shows  us  that  our system  was  able  to  find
+Table~\ref{tab:test}  shows  us  that  our  system  is  able  to  find
 high-quality    error   functions    for   AllDifferent,    LinearSum,
 LinearLessThan and LinearGreaterThan. This illustrates that our system
 can  learn   efficient  error  function  over   incomplete  constraint
-assignment spaces.   Obseve that the  learned error functions  for the
+assignment spaces.  Observe  that the learned error  functions for the
 Minimum  constraint over  incomplete spaces  perform poorly,  while it
 learn a  perfect error function  over complete spaces.  The  reason is
 the  following:  over  complete  spaces, learned  error  function  for
 Minimum   reproduce  the   Hamming   cost,  which   is  an   excellent
 choice. However,  sampled assignments  that constitute  the incomplete
 space guide the solver toward Manhattan-like error functions, which is
-a poor choice for this constraint.
+a  poor choice  for this  constraint.  This  shows that  learning over
+incomplete spaces often produces high-quality error functions, but can
+sometimes lead to poorly learned ones.
 
 Let's focus now on NoOverlap1D and Ordered. Looking at their scores on
 the first  and second  part of Table~\ref{tab:test},  we can  see that
@@ -1277,7 +1286,7 @@ We give  in appendix  the list  of the  most frequently  learned error
 function  for  each  constraint,  both over  complete  and  incomplete
 spaces.
 
-\subsubsection{Experiment 3}
+\subsubsection{Experiment 3}\label{subsubsec:results_xp3}
 
 The goal of this experiment is  not to be state-of-the-art in terms of
 run-times for solving  Sudoku, Magic Square and Killer  Sudoku, but to
@@ -1370,44 +1379,48 @@ through the  Interpretable Compositional  Network or  to let  them the
 possibility     to    code     it     themselves.     Results     from
 Table~\ref{tab:problems} show that the overload is such that run-times
 of error  functions executed  through the  interpretable compositional
-network are  slightly more than  twice longer than run-times  of their
+network  are between  30\% and  80\% longer  than run-times  of their
 hard-coded version.
 
-More  importantly,  we see  that  the  most frequently  learned  error
-function by our system, once hard-coded in C++, finds solutions almost
-as quickly as the carefully  hand-crafted error function from Petit et
-al.~\cite{Petit2001}. Thus,  our method  can be used  to automatically
-find error functions with  an equivalent efficiency than human-defined
-ones.
+The same difference of permormance  is observed between hard-coded and
+hand-crafted  version  of  error  functions:  we  see  that  the  most
+frequently learned  error function by  our system, once  hard-coded in
+C++, finds  solutions within between 30\%  and 80\% more time  that as
+the   carefully   hand-crafted   error    function   from   Petit   et
+al.~\cite{Petit2001}.    Although  perfectible,   these  results   are
+encouraging and show that our method can be used to automatically find
+error functions that are usable in practice.
 
 \section{Conclusion}\label{sec:conclusion}
 
 In  this  paper,  we  give  a  formal  definition  of  Error  Function
 Satisfaction and  Optimization Problems,  and we  present a  method to
 learn   error  functions   automatically   upon  a   model  based   on
-Interpretable  Compositional Networks,  a particluar  directed acyclic
+Interpretable  Compositional Networks,  a particular  directed acyclic
 graph.  To  the best of  our knowledge, this  is the first  attempt to
 learn error functions for hard constraints automatically.
 
 We  have  tested   our  system  over  7   different  constraints.   In
-Experiment~1 over small and complete training spaces, it finds the the
-exact Hamming or Manhattan costs for 5 of them.  Their error functions
-have  been  learned  over  constraint  assignment  space  composed  of
-500\(\sim\)600  assignments  and  perfectly  scale  on  high-dimension
-constraint instances with  \(10^{200}\) assignments.  In Experiment~2,
-we show the robustness of our  system by learning error functions over
-incomplete  constraint  assignment  space containing  20,000  randomly
-drawn assignments  from spaces  of about \(10^{12}\)  assignments.  It
-finds high-quality error functions for 4 out of 5 constraints that had
-a perfect error function in the previous Experiment~1.
+Experiment~1 over  small and  complete training  spaces, it  finds the
+exact Hamming  or Manhattan costs  for 5 of  them.  The beauty  of our
+method is that  we learn error functions by solving  an Error Function
+Optimization Problem. Error functions of these 7 constraints have been
+learned over  constraint assignment  space composed  of 500\(\sim\)600
+assignments and perfectly scale on high-dimension constraint instances
+with  \(10^{200}\)   assignments.   In   Experiment~2,  we   show  the
+robustness of our  system by learning error  functions over incomplete
+constraint   assignment  space   containing   20,000  randomly   drawn
+assignments from  spaces of  about \(10^{12}\) assignments.   It finds
+high-quality error  functions for 4  out of  5 constraints that  had a
+perfect error function in the previous Experiment~1.
 
 With the analysis of our results, we  conclude it is better to use our
 system   over  complete   spaces  for   simple  constraints   such  as
 AllDifferent, LinearSum  and Minimum.   For more  complex constraints,
-like  NoOverlap1D and  Ordered, experiments  show that  small training
-spaces  are  too restricted  and  do  not  contain enough  of  diverse
-assignments, and  the current  set of elementary  operations composing
-our \icn model is certainly not expressive enough.
+like  NoOverlap1D  and  Ordered,  experiments  show  that  very  small
+training  spaces are  too  restricted  and do  not  contain enough  of
+diverse  assignments, and  the  current set  of elementary  operations
+composing our \icn model is certainly not expressive enough.
 
 Results from Experiment~3 show that:
 \begin{inparaenum}[1.]
@@ -1441,7 +1454,7 @@ are intelligible. This allows our system to have two operating modes:
     proposed error functions, pick up and modify the one they prefer.
 \end{inparaenum}   
 
-We made this system modular, allowing users with special needs can add
+We made this system modular, allowing  users with special needs to add
 or  remove operations  in  the  system to  learn  more specific  error
 functions.
 
@@ -1460,6 +1473,14 @@ assignment  is to  be  a solution  for  constraint-based local  search
 solvers, it could also be too restrictive.  Learning via reinforcement
 learning would allow finding error  functions that are more adapted to
 the chosen solver.
+
+Another  interesting  extension  is   the  theoretical  study  of  the
+properties of  elementary operations and their  combinations, together
+with the properties  of the search landscape  such combinations imply,
+such as the ruggedness, the solution density, the presence of funnels,
+the  solution symetries,  etc.   Having a  deeper  knowledge of  these
+properties would help selecting the right elementary operations for an
+\icn regarding the type of constraints users aim to represent.
 
 
 \section*{Statements and Declarations}
